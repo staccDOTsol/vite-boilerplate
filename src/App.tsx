@@ -37,7 +37,7 @@ function App() {
 
     const initTonClient = async () => {
       try {
-        const endpoint = "https://go.getblock.io/a5b3a85c77bc4fe08356ea52e0048213";
+        const endpoint = "https://go.getblock.io/1584d5bbf4fd46a78dc45360f7588fa5";
         const newClient = new TonClient({ endpoint });
         setClient(newClient);
       } catch (error: any) {
