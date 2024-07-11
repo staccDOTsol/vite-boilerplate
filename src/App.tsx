@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import { getHttpEndpoint } from '@orbs-network/ton-access';
-
 const stringToBits = (str: string) => {
   const bits = new BitString(window.Buffer.from(str), 0, str.length * 8)
   return bits
@@ -41,7 +39,7 @@ function App() {
     // Initialize TonClient
     const initTonClient = async () => {
       try {
-        const endpoint = await getHttpEndpoint({ network: 'mainnet' });
+        const endpoint = "https://mainnet.ton.dev";
         const newClient = new TonClient({ endpoint });
         setClient(newClient);
       } catch (error) {
