@@ -31,35 +31,31 @@ function App() {
   }>>([])
 
   useEffect(() => {
-    // Check if wallet is already connected
     if (WebApp.initDataUnsafe.user) {
       setWalletConnected(true)
     }
 
-    // Initialize TonClient
     const initTonClient = async () => {
       try {
-        const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-        await sleep(1000); // Wait for 1 second before initializing the client
         const endpoint = "https://go.getblock.io/a5b3a85c77bc4fe08356ea52e0048213";
         const newClient = new TonClient({ endpoint });
         setClient(newClient);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to initialize TonClient:', error);
-        WebApp.showAlert('Failed to connect to TON network. Please try again later.');
+        WebApp.showAlert(error.toString());
       }
     }
 
     initTonClient()
+  }, [])
 
-    // Load the memecoinlaunchpad contract
+  useEffect(() => {
     const loadContract = async () => {
+      if (!client) return
       try {
-        if (!client) return
         const contractAddress = Address.parse('EQAKGFo1pp6xuzlAxvgK7LLYeF120UhAtCUS9qu-rsEmQcjc')
         const contractData = await client.getContractState(contractAddress)
         setContract(contractData)
-        console.log('Contract loaded:', contractData)
       } catch (error: any) {
         console.error('Failed to load contract:', error)
         WebApp.showAlert(error.toString())
@@ -76,11 +72,9 @@ function App() {
       if (!client || !contract) return
 
       try {
-        // Query the TON blockchain for transaction history
         const transactions = await client.getTransactions(contract.address, { limit: 100 });
 
-        // Parse the transactions to extract launched contracts
-        const contractsData = await transactions
+        const contractsData = await Promise.all(transactions
           .filter(tx => tx.inMessage?.body?.type === CellType.Ordinary)
           .map(async tx => {
             const body = tx.inMessage?.body;
@@ -89,38 +83,34 @@ function App() {
             }
             const slice = body.beginParse();
             const op = slice.loadUint(32);
-            if (op !== 1) { // Assuming op 1 is for deploying a memecoin
+            if (op !== 1) {
                 return null;
             }
             
             const tokenAddressSlice = slice.loadAddress();
             
-            // Extract token info using getter methods
             const result = await client.callGetMethod(contract.address, 'get_token_info', [{ type: 'slice', cell: beginCell().storeAddress(tokenAddressSlice).endCell() }]);
             const name = result.stack.readString();
             const symbol = result.stack.readString();
-            // Get total supply
             const totalSupplyResult = await client.callGetMethod(contract.address, 'get_total_supply', []);
             const totalSupply = totalSupplyResult.stack.readBigNumber();
             
-            // Calculate value and Greeks
-            const initialPrice = 1000000n; // 0.001 TON
-            const priceIncrement = 1000000n; // 0.001 TON
+            const initialPrice = 1000000n;
+            const priceIncrement = 1000000n;
             
             const currentPrice = initialPrice + (totalSupply * priceIncrement);
             const marketCap = currentPrice * totalSupply;
             
-            // Calculate Greeks (simplified versions)
-            const alpha = Number(currentPrice) / Number(totalSupply); // Price sensitivity to supply
-            const beta = Number(priceIncrement); // Rate of price change
-            const gamma = 2 * Number(priceIncrement) / Number(totalSupply); // Rate of change of beta
-            const delta = Number(currentPrice) / Number(initialPrice + totalSupply * priceIncrement); // Ratio of price to initial price
-            const epsilon = Number(totalSupply * priceIncrement) / Number(currentPrice); // Supply elasticity
+            const alpha = Number(currentPrice) / Number(totalSupply);
+            const beta = Number(priceIncrement);
+            const gamma = 2 * Number(priceIncrement) / Number(totalSupply);
+            const delta = Number(currentPrice) / Number(initialPrice + totalSupply * priceIncrement);
+            const epsilon = Number(totalSupply * priceIncrement) / Number(currentPrice);
 
             return {
               address: tokenAddressSlice.toString(),
-              name: name,
-              symbol: symbol,
+              name,
+              symbol,
               totalSupply: totalSupply.toString(),
               currentPrice: currentPrice.toString(),
               marketCap: Number(marketCap),
@@ -130,16 +120,15 @@ function App() {
               delta: Number(delta),
               epsilon: Number(epsilon),
               launchDate: new Date(tx.now * 1000),
-              value: Number(currentPrice) / 1e9, // Convert from nanoTON to TON
+              value: Number(currentPrice) / 1e9,
             };
-          })
-          .filter((contract): contract is NonNullable<typeof contract> => contract !== null);
-          const resolvedContractsData = (await Promise.all(contractsData)).filter((contract): contract is NonNullable<typeof contract> => contract !== null);
-          setLaunchedContracts(resolvedContractsData);
-        } catch (error) {
-          console.error('Failed to fetch launched contracts:', error)
-          WebApp.showAlert('Failed to fetch launched contracts. Please try again.')
-        }
+          }));
+
+        setLaunchedContracts(contractsData.filter((contract): contract is NonNullable<typeof contract> => contract !== null));
+      } catch (error) {
+        console.error('Failed to fetch launched contracts:', error)
+        WebApp.showAlert('Failed to fetch launched contracts. Please try again.')
+      }
     }
 
     fetchLaunchedContracts()
@@ -167,7 +156,7 @@ function App() {
     try {
       const amountCoins = toNano(amount)
       const message = beginCell()
-        .storeUint(2, 32) // op code for buy
+        .storeUint(2, 32)
         .storeUint(amountCoins, 64)
         .endCell()
 
@@ -187,7 +176,7 @@ function App() {
     try {
       const amountCoins = toNano(amount)
       const message = beginCell()
-        .storeUint(3, 32) // op code for sell
+        .storeUint(3, 32)
         .storeCoins(amountCoins)
         .endCell()
 
@@ -206,7 +195,7 @@ function App() {
     }
     try {
       const message = beginCell()
-        .storeUint(1, 32) // op code for deploy
+        .storeUint(1, 32)
         .storeBits(stringToBits(newContractName))
         .storeBits(stringToBits(newContractSymbol))
         .storeCoins(toNano(newContractSupply))
@@ -298,9 +287,9 @@ function App() {
             <h5>{greek.charAt(0).toUpperCase() + greek.slice(1)}</h5>
             <ul> 
               {launchedContracts.sort((a, b) => Number(b[greek as keyof typeof a]) - Number(a[greek as keyof typeof a])).slice(0, 2).map((contract, index) => (
-                                                <li key={index}>
-                                                {contract.name} ({contract.symbol}) - Value: {typeof contract[greek as keyof typeof contract] === 'object' ? (contract[greek as keyof typeof contract] as Date).toLocaleDateString() : String(contract[greek as keyof typeof contract])}
-                                              </li>
+                <li key={index}>
+                  {contract.name} ({contract.symbol}) - Value: {typeof contract[greek as keyof typeof contract] === 'object' ? (contract[greek as keyof typeof contract] as Date).toLocaleDateString() : String(contract[greek as keyof typeof contract])}
+                </li>
               ))}
             </ul>
           </div>
