@@ -10,7 +10,6 @@ import WebApp from '@twa-dev/sdk'
 import { TonClient, Address, beginCell, toNano, BitString, CellType } from '@ton/ton'
 
 function App() {
-  const [count, setCount] = useState(0)
   const [walletConnected, setWalletConnected] = useState(false)
   const [contract, setContract] = useState<any>(null)
   const [contractAddress, setContractAddress] = useState('')
