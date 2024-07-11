@@ -40,10 +40,14 @@ function App() {
 
     // Initialize TonClient
     const initTonClient = async () => {
-      const newClient = new TonClient({
-        endpoint: await getHttpEndpoint({ network: 'mainnet' }),
-      });
-      setClient(newClient)
+      try {
+        const endpoint = await getHttpEndpoint({ network: 'mainnet' });
+        const newClient = new TonClient({ endpoint });
+        setClient(newClient);
+      } catch (error) {
+        console.error('Failed to initialize TonClient:', error);
+        WebApp.showAlert('Failed to connect to TON network. Please try again later.');
+      }
     }
 
     initTonClient()
