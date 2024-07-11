@@ -14,7 +14,6 @@
     "@orbs-network/ton-access": "^2.3.3",
     "@twa-dev/sdk": "^6.7.1",
     "@vitejs/plugin-basic-ssl": "^1.0.1",
-    "buffer": "^6.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -26,6 +25,7 @@
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
+    "buffer": "^6.0.3",
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
