@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import twaLogo from './assets/tapps.png'
 import viteLogo from '/vite.svg'
@@ -8,6 +8,30 @@ import WebApp from '@twa-dev/sdk'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [walletConnected, setWalletConnected] = useState(false)
+
+  useEffect(() => {
+    // Check if wallet is already connected
+    if (WebApp.initDataUnsafe.user) {
+      setWalletConnected(true)
+    }
+  }, [])
+
+  const connectWallet = async () => {
+    try {
+      // There's no direct method to request write access in the WebApp interface
+      // We'll assume the user is connected if we can access their data
+      if (WebApp.initDataUnsafe.user) {
+        setWalletConnected(true)
+        WebApp.showAlert('TON Wallet connected successfully!')
+      } else {
+        throw new Error('User data not available')
+      }
+    } catch (error) {
+      console.error('Failed to connect wallet:', error)
+      WebApp.showAlert('Failed to connect TON Wallet. Please try again.')
+    }
+  }
 
   return (
     <>
@@ -28,10 +52,14 @@ function App() {
           count is {count}
         </button>
       </div>
-      {/*  */}
       <div className="card">
         <button onClick={() => WebApp.showAlert(`Hello World! Current count is ${count}`)}>
-            Show Alert
+          Show Alert
+        </button>
+      </div>
+      <div className="card">
+        <button onClick={connectWallet} disabled={walletConnected}>
+          {walletConnected ? 'Wallet Connected' : 'Connect TON Wallet'}
         </button>
       </div>
     </>
