@@ -39,7 +39,9 @@ function App() {
     // Initialize TonClient
     const initTonClient = async () => {
       try {
-        const endpoint = "https://go.getblock.io/4fffc47c7ff04e82a649d5dc0f4db58a";
+        const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+        await sleep(1000); // Wait for 1 second before initializing the client
+        const endpoint = "https://go.getblock.io/a5b3a85c77bc4fe08356ea52e0048213";
         const newClient = new TonClient({ endpoint });
         setClient(newClient);
       } catch (error) {
