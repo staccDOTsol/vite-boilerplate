@@ -4,14 +4,23 @@ import twaLogo from './assets/tapps.png'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { getHttpV4Endpoint } from '@orbs-network/ton-access';
-
+const stringToBits = (str: string) => {
+  const bits = new BitString(Buffer.from(str), 0, str.length * 8)
+  return bits
+}
 import WebApp from '@twa-dev/sdk'
-import { TonClient, Address, TonClient4 } from '@ton/ton'
+import { TonClient, Address, TonClient4, beginCell, toNano, BitString } from '@ton/ton'
 
 function App() {
   const [count, setCount] = useState(0)
   const [walletConnected, setWalletConnected] = useState(false)
   const [contract, setContract] = useState<any>(null)
+  const [contractAddress, setContractAddress] = useState('')
+  const [amount, setAmount] = useState('')
+  const [newContractName, setNewContractName] = useState('')
+  const [newContractSymbol, setNewContractSymbol] = useState('')
+  const [newContractSupply, setNewContractSupply] = useState('')
+  const [client, setClient] = useState<TonClient | null>(null)
 
   useEffect(() => {
     // Check if wallet is already connected
@@ -19,12 +28,20 @@ function App() {
       setWalletConnected(true)
     }
 
+    // Initialize TonClient
+    const initTonClient = async () => {
+      const newClient = new TonClient({
+        endpoint: await getHttpV4Endpoint({ network: 'mainnet' }),
+      });
+      setClient(newClient)
+    }
+
+    initTonClient()
+
     // Load the memecoinlaunchpad contract
     const loadContract = async () => {
       try {
-        const client = new TonClient({
-            endpoint: await getHttpV4Endpoint({ network: 'mainnet' }),
-        });
+        if (!client) return
         const contractAddress = Address.parse('EQAKGFo1pp6xuzlAxvgK7LLYeF120UhAtCUS9qu-rsEmQcjc')
         const contractData = await client.getContractState(contractAddress)
         setContract(contractData)
@@ -35,13 +52,13 @@ function App() {
       }
     }
 
-    loadContract()
-  }, [])
+    if (client) {
+      loadContract()
+    }
+  }, [client])
 
   const connectWallet = async () => {
     try {
-      // There's no direct method to request write access in the WebApp interface
-      // We'll assume the user is connected if we can access their data
       if (WebApp.initDataUnsafe.user) {
         setWalletConnected(true)
         WebApp.showAlert('TON Wallet connected successfully!')
@@ -54,18 +71,70 @@ function App() {
     }
   }
 
+  const buyTokens = async () => {
+    if (!walletConnected || !client) {
+      WebApp.showAlert('Please connect your wallet first.')
+      return
+    }
+    try {
+      const amountCoins = toNano(amount)
+      const message = beginCell()
+        .storeUint(2, 32) // op code for buy
+        .storeUint(amountCoins, 64)
+        .endCell()
+
+      await client.sendExternalMessage(contract, message)
+      WebApp.showAlert(`Attempting to buy ${amount} tokens from ${contractAddress}`)
+    } catch (error) {
+      console.error('Failed to buy tokens:', error)
+      WebApp.showAlert('Failed to buy tokens. Please try again.')
+    }
+  }
+
+  const sellTokens = async () => {
+    if (!walletConnected || !client) {
+      WebApp.showAlert('Please connect your wallet first.')
+      return
+    }
+    try {
+      const amountCoins = toNano(amount)
+      const message = beginCell()
+        .storeUint(3, 32) // op code for sell
+        .storeCoins(amountCoins)
+        .endCell()
+
+      await client.sendExternalMessage(contract, message)
+      WebApp.showAlert(`Attempting to sell ${amount} tokens to ${contractAddress}`)
+    } catch (error) {
+      console.error('Failed to sell tokens:', error)
+      WebApp.showAlert('Failed to sell tokens. Please try again.')
+    }
+  }
+
+  const createNewContract = async () => {
+    if (!walletConnected || !client) {
+      WebApp.showAlert('Please connect your wallet first.')
+      return
+    }
+    try {
+      const message = beginCell()
+        .storeUint(1, 32) // op code for deploy
+        .storeBits(stringToBits(newContractName))
+        .storeBits(stringToBits(newContractSymbol))
+        .storeCoins(toNano(newContractSupply))
+        .endCell()
+
+      await client.sendExternalMessage(contract, message)
+      WebApp.showAlert(`Attempting to create new contract: ${newContractName} (${newContractSymbol}) with supply: ${newContractSupply}`)
+    } catch (error) {
+      console.error('Failed to create new contract:', error)
+      WebApp.showAlert('Failed to create new contract. Please try again.')
+    }
+  }
+
   return (
     <>
       <div>
-        <a href="https://ton.org/dev" target="_blank">
-          <img src={twaLogo} className="logo" alt="TWA logo" />
-        </a>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
       </div>
       <h1>TWA + Vite + React</h1>
       <div className="card">
@@ -87,6 +156,45 @@ function App() {
         <button onClick={() => WebApp.showAlert(contract ? 'Contract loaded' : 'Contract not loaded')}>
           Check Contract Status
         </button>
+      </div>
+      <div className="card">
+        <h3>Buy/Sell Tokens</h3>
+        <input
+          type="text"
+          placeholder="Contract Address"
+          value={contractAddress}
+          onChange={(e) => setContractAddress(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
+        <button onClick={buyTokens}>Buy Tokens</button>
+        <button onClick={sellTokens}>Sell Tokens</button>
+      </div>
+      <div className="card">
+        <h3>Create New Contract</h3>
+        <input
+          type="text"
+          placeholder="Contract Name"
+          value={newContractName}
+          onChange={(e) => setNewContractName(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Contract Symbol"
+          value={newContractSymbol}
+          onChange={(e) => setNewContractSymbol(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="Initial Supply"
+          value={newContractSupply}
+          onChange={(e) => setNewContractSupply(e.target.value)}
+        />
+        <button onClick={createNewContract}>Create New Contract</button>
       </div>
     </>
   )
