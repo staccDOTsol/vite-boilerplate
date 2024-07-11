@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import { getHttpV4Endpoint } from '@orbs-network/ton-access';
+import { Buffer } from 'buffer';
+
+// Polyfill Buffer for browser environments if needed
+if (typeof window !== 'undefined' && !window.Buffer) {
+  window.Buffer = Buffer;
+}
+
 const stringToBits = (str: string) => {
   const bits = new BitString(Buffer.from(str), 0, str.length * 8)
   return bits
