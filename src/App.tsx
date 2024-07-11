@@ -221,17 +221,7 @@ function App() {
     <>
       <div>
       </div>
-      <h1>TWA + Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-      </div>
-      <div className="card">
-        <button onClick={() => WebApp.showAlert(`Hello World! Current count is ${count}`)}>
-          Show Alert
-        </button>
-      </div>
+      <h1>MemeTon Launchpad</h1>
       <div className="card">
         <button onClick={connectWallet} disabled={walletConnected}>
           {walletConnected ? 'Wallet Connected' : 'Connect TON Wallet'}
