@@ -60,9 +60,9 @@ function App() {
         const contractData = await client.getContractState(contractAddress)
         setContract(contractData)
         console.log('Contract loaded:', contractData)
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to load contract:', error)
-        WebApp.showAlert('Failed to load memecoinlaunchpad contract. Please try again.')
+        WebApp.showAlert(error.toString())
       }
     }
 
