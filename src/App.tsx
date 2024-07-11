@@ -1,7 +1,4 @@
 import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import twaLogo from './assets/tapps.png'
-import viteLogo from '/vite.svg'
 import './App.css'
 import { getHttpV4Endpoint } from '@orbs-network/ton-access';
 const stringToBits = (str: string) => {
@@ -9,7 +6,7 @@ const stringToBits = (str: string) => {
   return bits
 }
 import WebApp from '@twa-dev/sdk'
-import { TonClient, Address, TonClient4, beginCell, toNano, BitString } from '@ton/ton'
+import { TonClient, Address, beginCell, toNano, BitString } from '@ton/ton'
 
 function App() {
   const [count, setCount] = useState(0)
