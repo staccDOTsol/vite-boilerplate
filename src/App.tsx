@@ -6,7 +6,7 @@ const stringToBits = (str: string) => {
   return bits
 }
 import WebApp from '@twa-dev/sdk'
-import { TonClient, Address, beginCell, toNano, BitString } from '@ton/ton'
+import { TonClient, Address, beginCell, toNano, BitString, CellType } from '@ton/ton'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -18,6 +18,19 @@ function App() {
   const [newContractSymbol, setNewContractSymbol] = useState('')
   const [newContractSupply, setNewContractSupply] = useState('')
   const [client, setClient] = useState<TonClient | null>(null)
+  const [launchedContracts, setLaunchedContracts] = useState<Array<{
+    name: string,
+    symbol: string,
+    address: string,
+    marketCap: number,
+    launchDate: Date,
+    value: number,
+    alpha: number,
+    beta: number,
+    gamma: number,
+    delta: number,
+    epsilon: number
+  }>>([])
 
   useEffect(() => {
     // Check if wallet is already connected
@@ -53,6 +66,80 @@ function App() {
       loadContract()
     }
   }, [client])
+
+  useEffect(() => {
+    const fetchLaunchedContracts = async () => {
+      if (!client || !contract) return
+
+      try {
+        // Query the TON blockchain for transaction history
+        const transactions = await client.getTransactions(contract.address, { limit: 100 });
+
+        // Parse the transactions to extract launched contracts
+        const contractsData = await transactions
+          .filter(tx => tx.inMessage?.body?.type === CellType.Ordinary)
+          .map(async tx => {
+            const body = tx.inMessage?.body;
+            if (!body || body.type !== CellType.Ordinary) {
+                return null;
+            }
+            const slice = body.beginParse();
+            const op = slice.loadUint(32);
+            if (op !== 1) { // Assuming op 1 is for deploying a memecoin
+                return null;
+            }
+            
+            const tokenAddressSlice = slice.loadAddress();
+            
+            // Extract token info using getter methods
+            const result = await client.callGetMethod(contract.address, 'get_token_info', [{ type: 'slice', cell: beginCell().storeAddress(tokenAddressSlice).endCell() }]);
+            const name = result.stack.readString();
+            const symbol = result.stack.readString();
+            // Get total supply
+            const totalSupplyResult = await client.callGetMethod(contract.address, 'get_total_supply', []);
+            const totalSupply = totalSupplyResult.stack.readBigNumber();
+            
+            // Calculate value and Greeks
+            const initialPrice = 1000000n; // 0.001 TON
+            const priceIncrement = 1000000n; // 0.001 TON
+            
+            const currentPrice = initialPrice + (totalSupply * priceIncrement);
+            const marketCap = currentPrice * totalSupply;
+            
+            // Calculate Greeks (simplified versions)
+            const alpha = Number(currentPrice) / Number(totalSupply); // Price sensitivity to supply
+            const beta = Number(priceIncrement); // Rate of price change
+            const gamma = 2 * Number(priceIncrement) / Number(totalSupply); // Rate of change of beta
+            const delta = Number(currentPrice) / Number(initialPrice + totalSupply * priceIncrement); // Ratio of price to initial price
+            const epsilon = Number(totalSupply * priceIncrement) / Number(currentPrice); // Supply elasticity
+
+            return {
+              address: tokenAddressSlice.toString(),
+              name: name,
+              symbol: symbol,
+              totalSupply: totalSupply.toString(),
+              currentPrice: currentPrice.toString(),
+              marketCap: Number(marketCap),
+              alpha: Number(alpha),
+              beta: Number(beta),
+              gamma: Number(gamma),
+              delta: Number(delta),
+              epsilon: Number(epsilon),
+              launchDate: new Date(tx.now * 1000),
+              value: Number(currentPrice) / 1e9, // Convert from nanoTON to TON
+            };
+          })
+          .filter((contract): contract is NonNullable<typeof contract> => contract !== null);
+          const resolvedContractsData = (await Promise.all(contractsData)).filter((contract): contract is NonNullable<typeof contract> => contract !== null);
+          setLaunchedContracts(resolvedContractsData);
+        } catch (error) {
+          console.error('Failed to fetch launched contracts:', error)
+          WebApp.showAlert('Failed to fetch launched contracts. Please try again.')
+        }
+    }
+
+    fetchLaunchedContracts()
+  }, [client, contract])
 
   const connectWallet = async () => {
     try {
@@ -192,6 +279,38 @@ function App() {
           onChange={(e) => setNewContractSupply(e.target.value)}
         />
         <button onClick={createNewContract}>Create New Contract</button>
+      </div>
+      <div className="card">
+        <h3>Leaderboards</h3>
+        <h4>Top 2 by Market Cap</h4>
+        <ul>
+          {launchedContracts.sort((a, b) => b.marketCap - a.marketCap).slice(0, 2).map((contract, index) => (
+            <li key={index}>
+              {contract.name} ({contract.symbol}) - Market Cap: {contract.marketCap}
+            </li>
+          ))}
+        </ul>
+        <h4>Newest 2 Contracts</h4>
+        <ul>
+          {launchedContracts.sort((a, b) => b.launchDate.getTime() - a.launchDate.getTime()).slice(0, 2).map((contract, index) => (
+            <li key={index}>
+              {contract.name} ({contract.symbol}) - Launched: {contract.launchDate.toLocaleDateString()}
+            </li>
+          ))}
+        </ul>
+        <h4>Greek Rankings</h4>
+        {['alpha', 'beta', 'gamma', 'delta', 'epsilon'].map(greek => (
+          <div key={greek}>
+            <h5>{greek.charAt(0).toUpperCase() + greek.slice(1)}</h5>
+            <ul> 
+              {launchedContracts.sort((a, b) => Number(b[greek as keyof typeof a]) - Number(a[greek as keyof typeof a])).slice(0, 2).map((contract, index) => (
+                                                <li key={index}>
+                                                {contract.name} ({contract.symbol}) - Value: {typeof contract[greek as keyof typeof contract] === 'object' ? (contract[greek as keyof typeof contract] as Date).toLocaleDateString() : String(contract[greek as keyof typeof contract])}
+                                              </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
     </>
   )

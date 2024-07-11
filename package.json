@@ -11,13 +11,13 @@
   },
   "dependencies": {
     "@orbs-network/ton-access": "^2.3.3",
-    "@ton/ton": "^13.11.2",
     "@twa-dev/sdk": "^6.7.1",
     "@vitejs/plugin-basic-ssl": "^1.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@ton/ton": "^13.11.2",
     "@types/node": "^20.14.10",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
