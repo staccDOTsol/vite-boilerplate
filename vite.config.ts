@@ -1,14 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import basicSsl from '@vitejs/plugin-basic-ssl'
-import NodePolyfills from 'vite-plugin-node-polyfills'
+import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     basicSsl(),
-    NodePolyfills({
+    NodeModulesPolyfillPlugin({
       // To polyfill Buffer globally
       buffer: true
     })
