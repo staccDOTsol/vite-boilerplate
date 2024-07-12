@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import WebApp from '@twa-dev/sdk'
-import { TonClient, Address, beginCell, toNano, CellType, fromNano, BitString } from '@ton/ton'
+import { TonClient, Address, beginCell, toNano, CellType, fromNano, BitString, Contract } from '@ton/ton'
 import { getHttpEndpoint } from '@orbs-network/ton-access'
-
 function App() {
   const [walletConnected, setWalletConnected] = useState(false)
-  const [contract, setContract] = useState<any>(null)
+  const [contract, setContract] = useState<Contract | null>(null)
   const [contractAddress, setContractAddress] = useState('')
   const [amount, setAmount] = useState('')
   const [newContractName, setNewContractName] = useState('')
@@ -60,8 +59,7 @@ const stringToBits = (str: string): BitString => {
       if (contract) return
       try {
         const contractAddress = Address.parse('EQAKGFo1pp6xuzlAxvgK7LLYeF120UhAtCUS9qu-rsEmQcjc')
-        const contractData = await client.getContractState(contractAddress)
-        setContract(contractData)
+        setContract({address: contractAddress})
       } catch (error: any) {
         console.error('Failed to load contract:', error)
         WebApp.showAlert(error.toString())
@@ -152,7 +150,7 @@ const stringToBits = (str: string): BitString => {
         .storeUint(amountCoins, 64)
         .endCell()
 
-      await client.sendExternalMessage(contract, message)
+      await client.sendExternalMessage(contract as Contract, message)
       WebApp.showAlert(`Attempting to buy ${amount} tokens from ${contractAddress}`)
     } catch (error: any) {
       console.error('Failed to buy tokens:', error)
@@ -172,7 +170,7 @@ const stringToBits = (str: string): BitString => {
         .storeCoins(amountCoins)
         .endCell()
 
-      await client.sendExternalMessage(contract, message)
+      await client.sendExternalMessage(contract as Contract, message)
       WebApp.showAlert(`Attempting to sell ${amount} tokens to ${contractAddress}`)
     } catch (error: any) {
       console.error('Failed to sell tokens:', error)
@@ -193,7 +191,7 @@ const stringToBits = (str: string): BitString => {
         .storeCoins(toNano(newContractSupply))
         .endCell()
 
-      await client.sendExternalMessage(contract, message)
+      await client.sendExternalMessage(contract as Contract, message)
       WebApp.showAlert(`Attempting to create new contract: ${newContractName} (${newContractSymbol}) with supply: ${newContractSupply}`)
     } catch (error: any) {
       console.error('Failed to create new contract:', error)
@@ -204,7 +202,7 @@ const stringToBits = (str: string): BitString => {
   const calculateCost = (amount: string) => {
     if (!contract) return '0'
 
-    const totalSupply = contract.totalSupply!= undefined ? BigInt(contract.totalSupply) : 0n
+    const totalSupply = BigInt(0)
     const initialPrice = 1000000n
     const priceIncrement = 1000000n
     const amountBigInt = amount !== '' ? BigInt(amount) : 0n
