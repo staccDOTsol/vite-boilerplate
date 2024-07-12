@@ -11,13 +11,16 @@ export default defineConfig({
     }),
     react(),
     basicSsl(),
-    stringReplace({
-      include: 'node_modules/qrcode-terminal/lib/main.js',
-      replacements: [
-        { search: '\\033[40m  \\033[0m', replace: '\\x1b[40m  \\x1b[0m' },
-        { search: '\\033[47m  \\033[0m', replace: '\\x1b[47m  \\x1b[0m' },
-      ],
-    }),
+    stringReplace([
+      {
+        search: '\\033[40m  \\03[0m',
+        replace: '\\x1b[40m  \\x1b[0m'
+      },
+      {
+        search: '\\033[47m  \\03[0m',
+        replace: '\\x1b[47m  \\x1b[0m'
+      }
+    ]),
   ],
   build: {
     outDir: './docs',
