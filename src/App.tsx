@@ -6,6 +6,7 @@ const stringToBits = (str: string) => {
 }
 import WebApp from '@twa-dev/sdk'
 import { TonClient, Address, beginCell, toNano, BitString, CellType } from '@ton/ton'
+import { getHttpEndpoint } from '@orbs-network/ton-access'
 
 function App() {
   const [walletConnected, setWalletConnected] = useState(false)
@@ -38,11 +39,10 @@ function App() {
     const initTonClient = async () => {
       if (client) return
       try {
-        const endpoint = "https://go.getblock.io";
+        const endpoint = await getHttpEndpoint(); // get the decentralized RPC endpoint
         const newClient = new TonClient({ 
           endpoint,
           timeout: 30000, // 30 seconds timeout
-          apiKey: 'e71d3c517d124436b4c1cdf6843d0b8c' // Replace with your actual API key
         });
         setClient(newClient);
       } catch (error: any) {
