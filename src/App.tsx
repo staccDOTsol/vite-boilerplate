@@ -97,12 +97,12 @@ const App = () => {
       } catch (error) {
         console.error('Error fetching game data:', error);
       }
+      setTimeout(fetchGameData, 5000); // Update every 5 seconds
     };
 
     fetchGameData();
-    const timer = setInterval(fetchGameData, 5000); // Update every 5 seconds
+     
 
-    return () => clearInterval(timer);
   }, [client, wallet]);
 
   useEffect(() => {
