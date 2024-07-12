@@ -186,8 +186,8 @@ const stringToBits = (str: string): BitString => {
     try {
       const message = beginCell()
         .storeUint(1, 32)
-        .storeBits(stringToBits(newContractName))
-        .storeBits(stringToBits(newContractSymbol))
+        .storeStringTail(newContractName)
+        .storeStringTail(newContractSymbol)
         .storeCoins(toNano(newContractSupply))
         .endCell()
 
