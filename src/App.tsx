@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import WebApp from '@twa-dev/sdk'
-import { TonClient, Address, beginCell, toNano, CellType, fromNano, Contract } from '@ton/ton'
+import { TonClient, Address, beginCell, toNano, CellType, fromNano, Contract, BitString } from '@ton/ton'
 import { getHttpEndpoint } from '@orbs-network/ton-access'
 function App() {
   const [walletConnected, setWalletConnected] = useState(false)
@@ -183,8 +183,8 @@ function App() {
     try {
       const message = beginCell()
         .storeUint(1, 32)
-        .storeStringTail(newContractName)
-        .storeStringTail(newContractSymbol)
+        .storeBits(new BitString(Buffer.from(newContractName).slice(0, 32), 0, 32))
+        .storeBits(new BitString(Buffer.from(newContractSymbol).slice(0, 10), 0, 10))
         .storeCoins(toNano(newContractSupply))
         .endCell()
 
