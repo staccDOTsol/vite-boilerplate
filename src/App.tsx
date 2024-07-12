@@ -57,6 +57,9 @@ const App = () => {
 
           try {
             const timeLeftResult = await contract.get('get_time_left', []);
+            console.log(timeLeftResult)
+            console.log(timeLeftResult.stack)
+            console.log(timeLeftResult.stack.readNumber())
             setTimeLeft(Number(timeLeftResult.stack.readNumber()));
           } catch (error) {
             console.error('Error fetching time left:', error);
