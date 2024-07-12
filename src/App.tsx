@@ -8,8 +8,7 @@ import { useTonAddress, useTonConnectUI, useTonWallet } from '@tonconnect/ui-rea
 import { TonConnectButton } from '@tonconnect/ui-react'
 
 function App() {
-      const userFriendlyAddress = useTonAddress();
-
+  const userFriendlyAddress = useTonAddress();
   const [walletConnected, setWalletConnected] = useState(false)
   const [contract, setContract] = useState<any | null>(null)
   const [contractAddress, setContractAddress] = useState('')
@@ -31,22 +30,23 @@ function App() {
     epsilon: number
   }>>([])
   const [calculatedCost, setCalculatedCost] = useState<string>('')
-  if (userFriendlyAddress) setWalletConnected(true)
-    const wallet = useTonWallet();
+  const wallet = useTonWallet();
   const [tonConnectUI] = useTonConnectUI();
 
-    useEffect(() => {
-    
+  useEffect(() => {
+    if (userFriendlyAddress) {
+      setWalletConnected(true)
+    }
+  }, [userFriendlyAddress])
 
+  useEffect(() => {
     const initTonClient = async () => {
- 
-    
       if (client) return
       try {
-        const endpoint = await getHttpEndpoint(); // get the decentralized RPC endpoint
+        const endpoint = await getHttpEndpoint();
         const newClient = new TonClient({ 
           endpoint,
-          timeout: 30000, // 30 seconds timeout
+          timeout: 30000,
         });
         setClient(newClient);
       } catch (error: any) {
