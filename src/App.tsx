@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import WebApp from '@twa-dev/sdk'
-import { TonClient, Address, beginCell, toNano, CellType, fromNano, BitString, Contract } from '@ton/ton'
+import { TonClient, Address, beginCell, toNano, CellType, fromNano, Contract } from '@ton/ton'
 import { getHttpEndpoint } from '@orbs-network/ton-access'
 function App() {
   const [walletConnected, setWalletConnected] = useState(false)
