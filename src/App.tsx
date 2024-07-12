@@ -64,7 +64,7 @@ function App() {
       if (contract) return
 
       try {
-        const contractAddress = Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh')
+        const contractAddress = Address.parse('EQDImUxH2-nJLVYLxRlkhM1W-9K-52aYdVr8R4e00hTlvyGL')
         setContract({address: contractAddress})
       } catch (error: any) {
         console.error('Failed to load contract:', error)
@@ -155,7 +155,7 @@ function App() {
         validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes from now
         messages: [
           {
-            address: 'EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh',
+            address: 'EQDImUxH2-nJLVYLxRlkhM1W-9K-52aYdVr8R4e00hTlvyGL',
             amount: amountCoins.toString(),
             payload: beginCell()
               .storeUint(2, 32)  // op code for buy_tokens
@@ -186,7 +186,7 @@ function App() {
         validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes from now
         messages: [
           {
-            address: 'EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh',
+            address: 'EQDImUxH2-nJLVYLxRlkhM1W-9K-52aYdVr8R4e00hTlvyGL',
             amount: '0', // 0.05 TON in nanoTON
             payload: beginCell()
               .storeUint(3, 32)  // op code for sell_tokens
@@ -215,7 +215,7 @@ function App() {
         validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes from now
         messages: [
           {
-            address: 'EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh',
+            address: 'EQDImUxH2-nJLVYLxRlkhM1W-9K-52aYdVr8R4e00hTlvyGL',
             amount: '0', // 0.05 TON in nanoTON
             payload: beginCell()
               .storeUint(1, 32)
