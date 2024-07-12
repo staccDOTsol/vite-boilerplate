@@ -1,13 +1,8 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import WebApp from '@twa-dev/sdk'
-import { TonClient, Address, beginCell, toNano, CellType, fromNano, BitString } from '@ton/ton'
+import { TonClient, Address, beginCell, toNano, CellType, fromNano, BitString, SendMode } from '@ton/ton'
 import { getHttpEndpoint } from '@orbs-network/ton-access'
-import { Blockchain, SandboxContract } from '@ton/sandbox';
-import { Cell, SendMode } from '@ton/core';
-import { MemeTon } from '../wrappers/MemeTon'
-import '@ton/test-utils';
-import { compile } from '@ton/blueprint';
 
 function App() {
   const [walletConnected, setWalletConnected] = useState(false)
@@ -59,27 +54,10 @@ function App() {
     const loadContract = async () => {
       if (!client) return
       if (contract) return
-      let code: Cell;
 
-      code = await compile('MemeTon');
-  
-      let blockchain: Blockchain;
-      let memeTon: SandboxContract<MemeTon>;
-  
-      blockchain = await Blockchain.create();
-  
-      memeTon = blockchain.openContract(
-              MemeTon.createFromConfig(
-                  {
-                      id: 0,
-                      counter: 0,
-                  },
-                  code
-              )
-          );
       try {
         const contractAddress = Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh')
-        setContract({address: contractAddress, memeTon})
+        setContract({address: contractAddress})
       } catch (error: any) {
         console.error('Failed to load contract:', error)
         WebApp.showAlert(error.toString())
