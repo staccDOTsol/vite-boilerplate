@@ -20,5 +20,5 @@ export default defineConfig({
       buffer: 'buffer',
     },
   },
-  base: '/'
+  base: '/vite-boilerplate/'
 });
