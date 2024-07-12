@@ -10,7 +10,6 @@ function App() {
   const [amount, setAmount] = useState('')
   const [newContractName, setNewContractName] = useState('')
   const [newContractSymbol, setNewContractSymbol] = useState('')
-  const [newContractSupply, setNewContractSupply] = useState('')
   const [client, setClient] = useState<TonClient | null>(null)
   const [launchedContracts, setLaunchedContracts] = useState<Array<{
     name: string,
@@ -55,7 +54,7 @@ function App() {
       if (!client) return
       if (contract) return
       try {
-        const contractAddress = Address.parse('EQAKGFo1pp6xuzlAxvgK7LLYeF120UhAtCUS9qu-rsEmQcjc')
+        const contractAddress = Address.parse('EQD3QsPKHvuHb5AuZ2xo9vWuDYQYnwFvc9F9_FL41n5z7POe')
         setContract({address: contractAddress})
       } catch (error: any) {
         console.error('Failed to load contract:', error)
@@ -185,11 +184,10 @@ function App() {
         .storeUint(1, 32)
         .storeBits(new BitString(Buffer.from(newContractName).slice(0, 32), 0, 32))
         .storeBits(new BitString(Buffer.from(newContractSymbol).slice(0, 10), 0, 10))
-        .storeCoins(toNano(newContractSupply))
         .endCell()
 
       await client.sendExternalMessage(contract as Contract, message)
-      WebApp.showAlert(`Attempting to create new contract: ${newContractName} (${newContractSymbol}) with supply: ${newContractSupply}`)
+      WebApp.showAlert(`Attempting to create new contract: ${newContractName} (${newContractSymbol}) `)
     } catch (error: any) {
       console.error('Failed to create new contract:', error)
       WebApp.showAlert(error.toString())
@@ -255,12 +253,6 @@ function App() {
           placeholder="Contract Symbol"
           value={newContractSymbol}
           onChange={(e) => setNewContractSymbol(e.target.value)}
-        />
-        <input
-          type="number"
-          placeholder="Initial Supply"
-          value={newContractSupply}
-          onChange={(e) => setNewContractSupply(e.target.value)}
         />
         <button onClick={createNewContract}>Create New Contract</button>
       </div>
