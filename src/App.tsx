@@ -22,7 +22,7 @@ const App = () => {
   const wallet = useTonWallet();
   const [tonConnectUI] = useTonConnectUI();
   const [client, setClient] = useState<TonClient | undefined>();
-  const contractAddress = 'EQBnncEDIFSjzpOS55Rty1UUjLE6ngerfkskz2hshBHYgqgi';
+  const contractAddress = 'EQC8EHhlShsJjXU6D8QJGGVxKXyLPMreAKNa1Hv3-0jw5PcY';
 
   useEffect(() => {
     const initTonClient = async () => {
@@ -146,7 +146,7 @@ const App = () => {
             amount: toNano(keyPrice).toString(),
             payload: beginCell()
               .storeUint(1, 32) // op code for buy_keys
-
+              .storeUint(0, 64) // query_id
               .endCell()
               .toBoc()
               .toString('base64'),
@@ -174,6 +174,7 @@ const App = () => {
             amount: toNano('0.01').toString(), // Small amount for gas
             payload: beginCell()
               .storeUint(2, 32) // op code for claim_win
+              .storeUint(0, 64) // query_id
               .endCell()
               .toBoc()
               .toString('base64'),
@@ -194,7 +195,7 @@ const App = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  //const isWinner = true//wallet && lastBuyer === wallet.account.address || lastBuyer == '';
+  //const isWinner = wallet && lastBuyer === wallet.account.address || lastBuyer == '';
   const canClaimWin = true//timeLeft === 0 && isWinner;
 
   return (
