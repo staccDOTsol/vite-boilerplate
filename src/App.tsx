@@ -4,6 +4,11 @@ import WebApp from '@twa-dev/sdk'
 import { TonClient, Address, beginCell, toNano, CellType, fromNano, BitString, SendMode } from '@ton/ton'
 import { getHttpEndpoint } from '@orbs-network/ton-access'
 
+import { getWalletInfo, getWallets } from './ton-connect/wallets';
+import TonConnect from '@tonconnect/sdk';
+import { TonConnectStorage } from './ton-connect/storage';
+import { getConnector } from './ton-connect/connector';
+
 function App() {
   const [walletConnected, setWalletConnected] = useState(false)
   const [contract, setContract] = useState<any | null>(null)
@@ -12,6 +17,7 @@ function App() {
   const [newContractName, setNewContractName] = useState('')
   const [newContractSymbol, setNewContractSymbol] = useState('')
   const [client, setClient] = useState<TonClient | null>(null)
+  const [wallet, setWallet] = useState<any>(null)
   const [launchedContracts, setLaunchedContracts] = useState<Array<{
     name: string,
     symbol: string,
@@ -26,13 +32,30 @@ function App() {
     epsilon: number
   }>>([])
   const [calculatedCost, setCalculatedCost] = useState<string>('')
-
+const uuid = Math.floor(Math.random()*99999)
   useEffect(() => {
-    if (WebApp.initDataUnsafe.user) {
-      setWalletConnected(true)
-    }
+    
 
     const initTonClient = async () => {
+      const wallets = await getWallets();
+
+      const connector = new TonConnect({
+        storage: new TonConnectStorage(uuid),
+        manifestUrl: process.env.MANIFEST_URL
+      });
+    
+      connector.onStatusChange(async wallet => {
+        if (wallet) {
+          const walletName =
+              (await getWalletInfo(wallet.device.appName))?.name || wallet.device.appName;
+          console.log(walletName)
+          setWallet(wallet)
+          setWalletConnected(true)
+        }
+      });
+    
+      const tonkeeper = wallets.find(wallet => wallet.appName === 'tonkeeper')!;
+    
       if (client) return
       try {
         const endpoint = await getHttpEndpoint(); // get the decentralized RPC endpoint
@@ -144,7 +167,7 @@ function App() {
     try {
       const amountCoins = toNano(amount)
       const provider = client.provider(Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh'))
-      await provider.internal(contract.address, {
+      await provider.internal(wallet, {
         value: amountCoins,
         sendMode: SendMode.PAY_GAS_SEPARATELY,
         body: beginCell()
@@ -166,12 +189,13 @@ function App() {
     }
     try {
       const amountCoins = toNano(amount)
+
       const provider = client.provider(Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh'))
-      await provider.internal(contract.address, {
+      await provider.internal(wallet, {
         value: '0.05',
         sendMode: SendMode.PAY_GAS_SEPARATELY,
         body: beginCell()
-            .storeUint(3, 32)  // op code for sell_tokens
+            .storeUint(3, 32)  // op code  for sell_tokens
             .storeUint(amountCoins, 64)  // amount as uint64
             .endCell(),
       });
@@ -189,7 +213,7 @@ function App() {
     }
     try {
       const provider = client.provider(Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh'))
-      await provider.internal(contract.address, {
+      await provider.internal(wallet, {
         value: '0.05', // Adjust this value as needed
         sendMode: SendMode.PAY_GAS_SEPARATELY,
         body: beginCell()
