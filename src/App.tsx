@@ -140,20 +140,6 @@ function App() {
     fetchLaunchedContracts()
   }, [client, contract, launchedContracts])
 
-  const connectWallet = async () => {
-    try {
-      if (WebApp.initDataUnsafe.user) {
-        setWalletConnected(true)
-        WebApp.showAlert('TON Wallet connected successfully!')
-      } else {
-        throw new Error('User data not available')
-      }
-    } catch (error) {
-      console.error('Failed to connect wallet:', error)
-      WebApp.showAlert('Failed to connect TON Wallet. Please try again.')
-    }
-  }
-  connectWallet()
 
   const buyTokens = async () => {
     if (!walletConnected || !client) {
