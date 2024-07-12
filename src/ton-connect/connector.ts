@@ -8,4 +8,4 @@ export function getConnector(chatId: number): TonConnect {
         manifestUrl: process.env.MANIFEST_URL,
         storage: new TonConnectStorage(chatId)
     });
-}
+} 
