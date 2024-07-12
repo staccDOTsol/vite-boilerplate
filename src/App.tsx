@@ -176,13 +176,11 @@ function App() {
       WebApp.showAlert(error.toString())
     }
   }
-
   const createNewContract = async () => {
     if (!walletConnected || !client) {
       WebApp.showAlert('Please connect your wallet first.')
       return
     }
-    try {
       const message = beginCell()
         .storeUint(1, 32)
         .storeStringTail(newContractName)
@@ -192,10 +190,7 @@ function App() {
 
       await client.sendExternalMessage(contract, message)
       WebApp.showAlert(`Attempting to create new contract: ${newContractName} (${newContractSymbol}) with supply: ${newContractSupply}`)
-    } catch (error: any) {
-      console.error('Failed to create new contract:', error)
-      WebApp.showAlert(error.toString())
-    }
+  
   }
 
   const calculateCost = (amount: string) => {
