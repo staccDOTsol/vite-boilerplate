@@ -5,7 +5,7 @@ const stringToBits = (str: string) => {
   return bits
 }
 import WebApp from '@twa-dev/sdk'
-import { TonClient, Address, beginCell, toNano, BitString, CellType } from '@ton/ton'
+import { TonClient, Address, beginCell, toNano, BitString, CellType, fromNano } from '@ton/ton'
 import { getHttpEndpoint } from '@orbs-network/ton-access'
 
 function App() {
@@ -258,7 +258,7 @@ function App() {
         <button onClick={buyTokens}>Buy Tokens</button>
         <button onClick={sellTokens}>Sell Tokens</button>
         <div>
-          <h4>Cost: {calculatedCost} TON</h4>
+          <h4>Cost: {fromNano(calculatedCost)} TON</h4>
         </div>
       </div>
       <div className="card">
