@@ -26,10 +26,7 @@ function App() {
     epsilon: number
   }>>([])
   const [calculatedCost, setCalculatedCost] = useState<string>('')
-const stringToBits = (str: string): BitString => {
-  const bits = new BitString(Buffer.from(str), 0, str.length * 8)
-  return bits
-}
+
   useEffect(() => {
     if (WebApp.initDataUnsafe.user) {
       setWalletConnected(true)
