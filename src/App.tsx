@@ -5,7 +5,7 @@ import { TonClient, Address, beginCell, toNano, CellType, fromNano, BitString } 
 import { getHttpEndpoint } from '@orbs-network/ton-access'
 import { Blockchain, SandboxContract } from '@ton/sandbox';
 import { Cell, SendMode } from '@ton/core';
-import { MemeTon } from '../../wrappers/MemeTon'
+import { MemeTon } from '../wrappers/MemeTon'
 import '@ton/test-utils';
 import { compile } from '@ton/blueprint';
 
