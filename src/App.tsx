@@ -204,10 +204,11 @@ function App() {
 
   const calculateCost = (amount: string) => {
     if (!contract) return '0'
-    const totalSupply = BigInt(contract.totalSupply)
+
+    const totalSupply = contract.totalSupply!= undefined ? BigInt(contract.totalSupply) : 0n
     const initialPrice = 1000000n
     const priceIncrement = 1000000n
-    const amountBigInt = BigInt(amount)
+    const amountBigInt = amount !== '' ? BigInt(amount) : 0n
     const currentPrice = initialPrice + (totalSupply * priceIncrement)
     const cost = currentPrice * amountBigInt
     return cost.toString()
