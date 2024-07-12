@@ -167,7 +167,7 @@ const uuid = Math.floor(Math.random()*99999)
     try {
       const amountCoins = toNano(amount)
       const provider = client.provider(Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh'))
-      await provider.internal(wallet, {
+      await provider.internal(wallet.account, {
         value: amountCoins,
         sendMode: SendMode.PAY_GAS_SEPARATELY,
         body: beginCell()
@@ -191,7 +191,7 @@ const uuid = Math.floor(Math.random()*99999)
       const amountCoins = toNano(amount)
 
       const provider = client.provider(Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh'))
-      await provider.internal(wallet, {
+      await provider.internal(wallet.account, {
         value: '0.05',
         sendMode: SendMode.PAY_GAS_SEPARATELY,
         body: beginCell()
@@ -213,7 +213,7 @@ const uuid = Math.floor(Math.random()*99999)
     }
     try {
       const provider = client.provider(Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh'))
-      await provider.internal(wallet, {
+      await provider.internal(wallet.account, {
         value: '0.05', // Adjust this value as needed
         sendMode: SendMode.PAY_GAS_SEPARATELY,
         body: beginCell()
