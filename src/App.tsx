@@ -210,6 +210,7 @@ function App() {
       return
     }
     try {
+      console.log(contract.memeTon)
       const message = await contract.memeTon.sendDeployMemecoin(WebApp.initDataUnsafe.user, {
         name: newContractName,
         symbol: newContractSymbol,
