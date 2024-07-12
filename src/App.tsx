@@ -194,8 +194,8 @@ const App = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const isWinner = true//wallet && lastBuyer === wallet.account.address || lastBuyer == '';
-  const canClaimWin = timeLeft === 0 && isWinner;
+  //const isWinner = true//wallet && lastBuyer === wallet.account.address || lastBuyer == '';
+  const canClaimWin = true//timeLeft === 0 && isWinner;
 
   return (
     <div className="App">
