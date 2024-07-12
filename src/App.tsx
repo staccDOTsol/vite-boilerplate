@@ -1,9 +1,5 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-const stringToBits = (str: string) => {
-  const bits = new BitString(Buffer.from(str), 0, str.length * 8)
-  return bits
-}
 import WebApp from '@twa-dev/sdk'
 import { TonClient, Address, beginCell, toNano, BitString, CellType, fromNano } from '@ton/ton'
 import { getHttpEndpoint } from '@orbs-network/ton-access'
@@ -189,8 +185,8 @@ function App() {
     try {
       const message = beginCell()
         .storeUint(1, 32)
-        .storeBits(stringToBits(newContractName))
-        .storeBits(stringToBits(newContractSymbol))
+        .storeStringTail(newContractName)
+        .storeStringTail(newContractSymbol)
         .storeCoins(toNano(newContractSupply))
         .endCell()
 
