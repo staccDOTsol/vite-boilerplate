@@ -4,10 +4,9 @@ import WebApp from '@twa-dev/sdk'
 import { TonClient, Address, beginCell, toNano, CellType, fromNano, BitString, SendMode } from '@ton/ton'
 import { getHttpEndpoint } from '@orbs-network/ton-access'
 
-import { getWalletInfo, getWallets } from './ton-connect/wallets';
+import { getWalletInfo } from './ton-connect/wallets';
 import TonConnect from '@tonconnect/sdk';
 import { TonConnectStorage } from './ton-connect/storage';
-import { getConnector } from './ton-connect/connector';
 
 function App() {
   const [walletConnected, setWalletConnected] = useState(false)
@@ -37,7 +36,6 @@ const uuid = Math.floor(Math.random()*99999)
     
 
     const initTonClient = async () => {
-      const wallets = await getWallets();
 
       const connector = new TonConnect({
         storage: new TonConnectStorage(uuid),
@@ -54,7 +52,6 @@ const uuid = Math.floor(Math.random()*99999)
         }
       });
     
-      const tonkeeper = wallets.find(wallet => wallet.appName === 'tonkeeper')!;
     
       if (client) return
       try {
