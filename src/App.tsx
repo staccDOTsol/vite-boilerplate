@@ -102,14 +102,12 @@ const App = () => {
           }
         };
 
-        await Promise.all([
-          fetchPotSize(),
-          fetchTimeLeft(),
-          fetchKeyPrice(),
-          fetchPlayerKeys(),
-          fetchLastBuyer(),
+          fetchPotSize()
+          fetchTimeLeft()
+          fetchKeyPrice()
+          fetchPlayerKeys()
+          fetchLastBuyer()
           fetchTotalSupply()
-        ]);
       } catch (error) {
         console.error('Error fetching game data:', error);
       }
