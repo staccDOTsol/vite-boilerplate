@@ -48,25 +48,20 @@ const App = () => {
       if (!client || !wallet) return;
       try {
         const contract = client.provider(Address.parse(contractAddress));
-        const fetchPotSize = async () => {
           try {
             const potSizeResult = await contract.get('get_pot_size', []);
             setPotSize(Number(fromNano(potSizeResult.stack.readBigNumber())));
           } catch (error) {
             console.error('Error fetching pot size:', error);
           }
-        };
 
-        const fetchTimeLeft = async () => {
           try {
             const timeLeftResult = await contract.get('get_time_left', []);
             setTimeLeft(Number(timeLeftResult.stack.readNumber()));
           } catch (error) {
             console.error('Error fetching time left:', error);
           }
-        };
 
-        const fetchKeyPrice = async () => {
           try {
             const keyPriceResult = await contract.get('get_key_price', []);
             setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber())) + 0.5);
@@ -74,41 +69,28 @@ const App = () => {
             setKeyPrice(0.5)
             console.error('Error fetching key price:', error);
           }
-        };
 
-        const fetchPlayerKeys = async () => {
           try {
             const playerKeysResult = await contract.get('get_total_supply', []);
             setPlayerKeys(Number(playerKeysResult.stack.readBigNumber()));
           } catch (error) {
             console.error('Error fetching player keys:', error);
           }
-        };
 
-        const fetchLastBuyer = async () => {
           try {
             const lastBuyerResult = await contract.get('get_last_buyer', []);
             setLastBuyer(lastBuyerResult.stack.readAddress().toString());
           } catch (error) {
             console.error('Error fetching last buyer:', error);
           }
-        };
 
-        const fetchTotalSupply = async () => {
           try {
             const totalSupplyResult = await contract.get('get_total_supply', []);
             setTotalSupply(Number(totalSupplyResult.stack.readBigNumber()));
           } catch (error) {
             console.error('Error fetching total supply:', error);
           }
-        };
-
-        fetchPotSize();
-        fetchTimeLeft();
-        fetchKeyPrice();
-        fetchPlayerKeys();
-        fetchLastBuyer();
-        fetchTotalSupply();
+     
       } catch (error) {
         console.error('Error fetching game data:', error);
       }
