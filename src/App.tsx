@@ -54,7 +54,7 @@ function App() {
       if (!client) return
       if (contract) return
       try {
-        const contractAddress = Address.parse('EQD3QsPKHvuHb5AuZ2xo9vWuDYQYnwFvc9F9_FL41n5z7POe')
+        const contractAddress = Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh')
         setContract({address: contractAddress})
       } catch (error: any) {
         console.error('Failed to load contract:', error)
