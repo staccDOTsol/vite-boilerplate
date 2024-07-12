@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import WebApp from '@twa-dev/sdk'
-import { TonClient, Address, beginCell, toNano, CellType, fromNano, Contract, BitString } from '@ton/ton'
+import { TonClient, Address, beginCell, toNano, CellType, fromNano } from '@ton/ton'
 import { getHttpEndpoint } from '@orbs-network/ton-access'
+import { Blockchain, SandboxContract } from '@ton/sandbox';
+import { Cell } from '@ton/core';
+import { MemeTon } from '../../wrappers/MemeTon'
+import '@ton/test-utils';
+import { compile } from '@ton/blueprint';
+
 function App() {
   const [walletConnected, setWalletConnected] = useState(false)
-  const [contract, setContract] = useState<Contract | null>(null)
+  const [contract, setContract] = useState<any | null>(null)
   const [contractAddress, setContractAddress] = useState('')
   const [amount, setAmount] = useState('')
   const [newContractName, setNewContractName] = useState('')
@@ -53,9 +59,27 @@ function App() {
     const loadContract = async () => {
       if (!client) return
       if (contract) return
+      let code: Cell;
+
+      code = await compile('MemeTon');
+  
+      let blockchain: Blockchain;
+      let memeTon: SandboxContract<MemeTon>;
+  
+      blockchain = await Blockchain.create();
+  
+      memeTon = blockchain.openContract(
+              MemeTon.createFromConfig(
+                  {
+                      id: 0,
+                      counter: 0,
+                  },
+                  code
+              )
+          );
       try {
         const contractAddress = Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh')
-        setContract({address: contractAddress})
+        setContract({address: contractAddress, memeTon})
       } catch (error: any) {
         console.error('Failed to load contract:', error)
         WebApp.showAlert(error.toString())
@@ -141,13 +165,18 @@ function App() {
     }
     try {
       const amountCoins = toNano(amount)
-      const message = beginCell()
-        .storeUint(2, 32)
-        .storeUint(amountCoins, 64)
-        .endCell()
-
-      await client.sendExternalMessage(contract as Contract, message)
-      WebApp.showAlert(`Attempting to buy ${amount} tokens from ${contractAddress}`)
+      const totalSupply = await contract.memeTon.getTotalSupply();
+      const result = await contract.memeTon.buyToekns(WebApp.initDataUnsafe.user, {
+        amount: amountCoins,
+        total_supply: totalSupply,
+        sender: WebApp.initDataUnsafe.user,
+        msg_value: amountCoins
+      });
+      if (result.success) {
+        WebApp.showAlert(`Successfully bought ${amount} tokens. You received ${fromNano(result.price)} TON.`);
+      } else {
+        throw new Error(result.error || 'Failed to buy tokens');
+      }
     } catch (error: any) {
       console.error('Failed to buy tokens:', error)
       WebApp.showAlert(error.toString())
@@ -161,12 +190,17 @@ function App() {
     }
     try {
       const amountCoins = toNano(amount)
-      const message = beginCell()
-        .storeUint(3, 32)
-        .storeCoins(amountCoins)
-        .endCell()
-
-      await client.sendExternalMessage(contract as Contract, message)
+      const totalSupply = await contract.memeTon.getTotalSupply();
+      const result = await contract.memeTon.sellTokens(WebApp.initDataUnsafe.user, {
+        amount: amountCoins,
+        total_supply: totalSupply,
+        sender: WebApp.initDataUnsafe.user
+      });
+      if (result.success) {
+        WebApp.showAlert(`Successfully sold ${amount} tokens. You received ${fromNano(result.price)} TON.`);
+      } else {
+        throw new Error(result.error || 'Failed to sell tokens');
+      }
       WebApp.showAlert(`Attempting to sell ${amount} tokens to ${contractAddress}`)
     } catch (error: any) {
       console.error('Failed to sell tokens:', error)
@@ -180,14 +214,16 @@ function App() {
       return
     }
     try {
-      const message = beginCell()
-        .storeUint(1, 32)
-        .storeBits(new BitString(Buffer.from(newContractName).slice(0, 32), 0, 32))
-        .storeBits(new BitString(Buffer.from(newContractSymbol).slice(0, 10), 0, 10))
-        .endCell()
-
-      await client.sendExternalMessage(contract as Contract, message)
-      WebApp.showAlert(`Attempting to create new contract: ${newContractName} (${newContractSymbol}) `)
+      const message = await contract.memeTon.deployMemecoin(WebApp.initDataUnsafe.user, {
+        name: newContractName,
+        symbol: newContractSymbol,
+        value: toNano('0.02'),
+      });
+      if (message.success) {
+        WebApp.showAlert(`Successfully created new contract: ${newContractName} (${newContractSymbol})`);
+      } else {
+        throw new Error(message.error || 'Failed to create new contract');
+      }
     } catch (error: any) {
       console.error('Failed to create new contract:', error)
       WebApp.showAlert(error.toString())
