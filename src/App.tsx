@@ -257,7 +257,8 @@ function App() {
       <div>
       </div>
       <h1>MemeTon Launchpad</h1>
-     {  !wallet && <TonConnectButton />}
+     {  !wallet ? <TonConnectButton /> : (
+      <div>
       <div className="card">
         <h3>Buy/Sell Tokens</h3>
         <input
@@ -326,6 +327,8 @@ function App() {
           </div>
         ))}
       </div>
+      </div>
+      )}
     </>
   )
 }
