@@ -30,6 +30,7 @@ function App() {
     delta: number,
     epsilon: number
   }>>([])
+  const [calculatedCost, setCalculatedCost] = useState<string>('')
 
   useEffect(() => {
     if (WebApp.initDataUnsafe.user) {
@@ -214,6 +215,21 @@ function App() {
     }
   }
 
+  const calculateCost = (amount: string) => {
+    if (!contract) return '0'
+    const totalSupply = BigInt(contract.totalSupply)
+    const initialPrice = 1000000n
+    const priceIncrement = 1000000n
+    const amountBigInt = BigInt(amount)
+    const currentPrice = initialPrice + (totalSupply * priceIncrement)
+    const cost = currentPrice * amountBigInt
+    return cost.toString()
+  }
+
+  useEffect(() => {
+    setCalculatedCost(calculateCost(amount))
+  }, [amount, contract])
+
   return (
     <>
       <div>
@@ -245,6 +261,9 @@ function App() {
         />
         <button onClick={buyTokens}>Buy Tokens</button>
         <button onClick={sellTokens}>Sell Tokens</button>
+        <div>
+          <h4>Cost: {calculatedCost} TON</h4>
+        </div>
       </div>
       <div className="card">
         <h3>Create New Contract</h3>
