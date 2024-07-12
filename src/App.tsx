@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import WebApp from '@twa-dev/sdk'
-import { TonClient, Address, beginCell, toNano, CellType, fromNano } from '@ton/ton'
+import { TonClient, Address, beginCell, toNano, CellType, fromNano, BitString } from '@ton/ton'
 import { getHttpEndpoint } from '@orbs-network/ton-access'
 
 function App() {
@@ -27,7 +27,10 @@ function App() {
     epsilon: number
   }>>([])
   const [calculatedCost, setCalculatedCost] = useState<string>('')
-
+const stringToBits = (str: string): BitString => {
+  const bits = new BitString(Buffer.from(str), 0, str.length * 8)
+  return bits
+}
   useEffect(() => {
     if (WebApp.initDataUnsafe.user) {
       setWalletConnected(true)
@@ -176,21 +179,26 @@ function App() {
       WebApp.showAlert(error.toString())
     }
   }
+
   const createNewContract = async () => {
     if (!walletConnected || !client) {
       WebApp.showAlert('Please connect your wallet first.')
       return
     }
+    try {
       const message = beginCell()
         .storeUint(1, 32)
-        .storeStringTail(newContractName)
-        .storeStringTail(newContractSymbol)
+        .storeBits(stringToBits(newContractName))
+        .storeBits(stringToBits(newContractSymbol))
         .storeCoins(toNano(newContractSupply))
         .endCell()
 
       await client.sendExternalMessage(contract, message)
       WebApp.showAlert(`Attempting to create new contract: ${newContractName} (${newContractSymbol}) with supply: ${newContractSupply}`)
-  
+    } catch (error: any) {
+      console.error('Failed to create new contract:', error)
+      WebApp.showAlert(error.toString())
+    }
   }
 
   const calculateCost = (amount: string) => {
