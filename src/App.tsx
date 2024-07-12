@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import WebApp from '@twa-dev/sdk'
-import { TonClient, Address, beginCell, toNano, CellType, fromNano, BitString, SendMode } from '@ton/ton'
+import { TonClient, Address, beginCell, toNano, CellType, fromNano, BitString } from '@ton/ton'
 import { getHttpEndpoint } from '@orbs-network/ton-access'
+import { useTonAddress, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 
-import { getWalletInfo } from './ton-connect/wallets';
-import TonConnect from '@tonconnect/sdk';
-import { TonConnectStorage } from './ton-connect/storage';
+import { TonConnectButton } from '@tonconnect/ui-react'
 
 function App() {
+      const userFriendlyAddress = useTonAddress();
+
   const [walletConnected, setWalletConnected] = useState(false)
   const [contract, setContract] = useState<any | null>(null)
   const [contractAddress, setContractAddress] = useState('')
@@ -16,7 +17,6 @@ function App() {
   const [newContractName, setNewContractName] = useState('')
   const [newContractSymbol, setNewContractSymbol] = useState('')
   const [client, setClient] = useState<TonClient | null>(null)
-  const [wallet, setWallet] = useState<any>(null)
   const [launchedContracts, setLaunchedContracts] = useState<Array<{
     name: string,
     symbol: string,
@@ -31,27 +31,15 @@ function App() {
     epsilon: number
   }>>([])
   const [calculatedCost, setCalculatedCost] = useState<string>('')
-const uuid = Math.floor(Math.random()*99999)
-  useEffect(() => {
+  if (userFriendlyAddress) setWalletConnected(true)
+    const wallet = useTonWallet();
+  const [tonConnectUI] = useTonConnectUI();
+
+    useEffect(() => {
     
 
     const initTonClient = async () => {
-
-      const connector = new TonConnect({
-        storage: new TonConnectStorage(uuid),
-        manifestUrl: process.env.MANIFEST_URL
-      });
-    
-      connector.onStatusChange(async wallet => {
-        if (wallet) {
-          const walletName =
-              (await getWalletInfo(wallet.device.appName))?.name || wallet.device.appName;
-          console.log(walletName)
-          setWallet(wallet)
-          setWalletConnected(true)
-        }
-      });
-    
+ 
     
       if (client) return
       try {
@@ -163,14 +151,20 @@ const uuid = Math.floor(Math.random()*99999)
     }
     try {
       const amountCoins = toNano(amount)
-      const provider = client.provider(Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh'))
-      await provider.internal(wallet.account, {
-        value: amountCoins,
-        sendMode: SendMode.PAY_GAS_SEPARATELY,
-        body: beginCell()
-            .storeUint(2, 32)  // op code for buy_tokens
-            .storeUint(amountCoins, 64)  // amount as uint64
-            .endCell(),
+      await tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes from now
+        messages: [
+          {
+            address: 'EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh',
+            amount: amountCoins.toString(),
+            payload: beginCell()
+              .storeUint(2, 32)  // op code for buy_tokens
+              .storeUint(amountCoins, 64)  // amount as uint64
+              .endCell()
+              .toBoc()
+              .toString('base64'),
+          },
+        ],
       });
       WebApp.showAlert(`Attempting to buy ${amount} tokens from ${contractAddress}`)
     } catch (error: any) {
@@ -187,14 +181,20 @@ const uuid = Math.floor(Math.random()*99999)
     try {
       const amountCoins = toNano(amount)
 
-      const provider = client.provider(Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh'))
-      await provider.internal(wallet.account, {
-        value: '0.05',
-        sendMode: SendMode.PAY_GAS_SEPARATELY,
-        body: beginCell()
-            .storeUint(3, 32)  // op code  for sell_tokens
-            .storeUint(amountCoins, 64)  // amount as uint64
-            .endCell(),
+      await tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes from now
+        messages: [
+          {
+            address: 'EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh',
+            amount: '50000000', // 0.05 TON in nanoTON
+            payload: beginCell()
+              .storeUint(3, 32)  // op code for sell_tokens
+              .storeUint(amountCoins, 64)  // amount as uint64
+              .endCell()
+              .toBoc()
+              .toString('base64'),
+          },
+        ],
       });
       WebApp.showAlert(`Attempting to sell ${amount} tokens to ${contractAddress}`)
     } catch (error: any) {
@@ -209,15 +209,21 @@ const uuid = Math.floor(Math.random()*99999)
       return
     }
     try {
-      const provider = client.provider(Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh'))
-      await provider.internal(wallet.account, {
-        value: '0.05', // Adjust this value as needed
-        sendMode: SendMode.PAY_GAS_SEPARATELY,
-        body: beginCell()
-          .storeUint(1, 32)
-          .storeBits(new BitString(Buffer.from(newContractName).slice(0, 32), 0, 32))
-          .storeBits(new BitString(Buffer.from(newContractSymbol).slice(0, 10), 0, 10))
-          .endCell(),
+      await tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes from now
+        messages: [
+          {
+            address: 'EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh',
+            amount: '50000000', // 0.05 TON in nanoTON
+            payload: beginCell()
+              .storeUint(1, 32)
+              .storeBits(new BitString(Buffer.from(newContractName).slice(0, 32), 0, 32))
+              .storeBits(new BitString(Buffer.from(newContractSymbol).slice(0, 10), 0, 10))
+              .endCell()
+              .toBoc()
+              .toString('base64'),
+          },
+        ],
       });
       WebApp.showAlert(`Attempting to create new contract: ${newContractName} (${newContractSymbol}) `)
     } catch (error: any) {
@@ -251,7 +257,7 @@ const uuid = Math.floor(Math.random()*99999)
       <div>
       </div>
       <h1>MemeTon Launchpad</h1>
-     
+     {  !wallet && <TonConnectButton />}
       <div className="card">
         <h3>Buy/Sell Tokens</h3>
         <input

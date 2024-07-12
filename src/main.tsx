@@ -4,6 +4,7 @@ import App from './App.tsx';
 import './index.css';
 
 import WebApp from '@twa-dev/sdk';
+import { TonConnectUIProvider } from '@tonconnect/ui-react';
 
 WebApp.ready();
 
@@ -45,7 +46,10 @@ const TokenCalculator = () => {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <TonConnectUIProvider manifestUrl="https://staccdotsol.github.io/vite-boilerplate/tonconnect-manifest.json">
+      <App />
+    </TonConnectUIProvider>
+
     <TokenCalculator />
   </React.StrictMode>
 );
