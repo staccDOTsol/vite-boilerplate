@@ -168,9 +168,9 @@ function App() {
 
       await client.sendExternalMessage(contract, message)
       WebApp.showAlert(`Attempting to buy ${amount} tokens from ${contractAddress}`)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to buy tokens:', error)
-      WebApp.showAlert('Failed to buy tokens. Please try again.')
+      WebApp.showAlert(error.toString())
     }
   }
 
@@ -188,9 +188,9 @@ function App() {
 
       await client.sendExternalMessage(contract, message)
       WebApp.showAlert(`Attempting to sell ${amount} tokens to ${contractAddress}`)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to sell tokens:', error)
-      WebApp.showAlert('Failed to sell tokens. Please try again.')
+      WebApp.showAlert(error.toString())
     }
   }
 
@@ -209,9 +209,9 @@ function App() {
 
       await client.sendExternalMessage(contract, message)
       WebApp.showAlert(`Attempting to create new contract: ${newContractName} (${newContractSymbol}) with supply: ${newContractSupply}`)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create new contract:', error)
-      WebApp.showAlert('Failed to create new contract. Please try again.')
+      WebApp.showAlert(error.toString())
     }
   }
 
@@ -230,21 +230,16 @@ function App() {
     setCalculatedCost(calculateCost(amount))
   }, [amount, contract])
 
+  const selectContract = (address: string) => {
+    setContractAddress(address);
+  }
+
   return (
     <>
       <div>
       </div>
       <h1>MemeTon Launchpad</h1>
-      <div className="card">
-        <button onClick={connectWallet} disabled={walletConnected}>
-          {walletConnected ? 'Wallet Connected' : 'Connect TON Wallet'}
-        </button>
-      </div>
-      <div className="card">
-        <button onClick={() => WebApp.showAlert(contract ? 'Contract loaded' : 'Contract not loaded')}>
-          Check Contract Status
-        </button>
-      </div>
+     
       <div className="card">
         <h3>Buy/Sell Tokens</h3>
         <input
@@ -292,7 +287,7 @@ function App() {
         <h4>Top 2 by Market Cap</h4>
         <ul>
           {launchedContracts.sort((a, b) => b.marketCap - a.marketCap).slice(0, 2).map((contract, index) => (
-            <li key={index}>
+            <li key={index} onClick={() => selectContract(contract.address)}>
               {contract.name} ({contract.symbol}) - Market Cap: {contract.marketCap}
             </li>
           ))}
@@ -300,7 +295,7 @@ function App() {
         <h4>Newest 2 Contracts</h4>
         <ul>
           {launchedContracts.sort((a, b) => b.launchDate.getTime() - a.launchDate.getTime()).slice(0, 2).map((contract, index) => (
-            <li key={index}>
+            <li key={index} onClick={() => selectContract(contract.address)}>
               {contract.name} ({contract.symbol}) - Launched: {contract.launchDate.toLocaleDateString()}
             </li>
           ))}
@@ -311,7 +306,7 @@ function App() {
             <h5>{greek.charAt(0).toUpperCase() + greek.slice(1)}</h5>
             <ul> 
               {launchedContracts.sort((a, b) => Number(b[greek as keyof typeof a]) - Number(a[greek as keyof typeof a])).slice(0, 2).map((contract, index) => (
-                <li key={index}>
+                <li key={index} onClick={() => selectContract(contract.address)}>
                   {contract.name} ({contract.symbol}) - Value: {typeof contract[greek as keyof typeof contract] === 'object' ? (contract[greek as keyof typeof contract] as Date).toLocaleDateString() : String(contract[greek as keyof typeof contract])}
                 </li>
               ))}
