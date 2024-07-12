@@ -3,8 +3,6 @@ import './App.css'
 import WebApp from '@twa-dev/sdk'
 import { TonClient, Address, beginCell, toNano, CellType, fromNano } from '@ton/ton'
 import { getHttpEndpoint } from '@orbs-network/ton-access'
-import { Blockchain, SandboxContract } from '@ton/sandbox';
-import { Cell } from '@ton/core';
 import { MemeTon } from '../wrappers/MemeTon'
 import '@ton/test-utils';
 
@@ -59,20 +57,9 @@ function App() {
       if (!client) return
       if (contract) return
   
-      let blockchain: Blockchain;
-      let memeTon: SandboxContract<MemeTon>;
-  
-      blockchain = await Blockchain.create();
-  
-      memeTon = blockchain.openContract(
-              MemeTon.createFromConfig(
-                  {
-                      id: 0,
-                      counter: 0,
-                  },
-                  Cell.fromBoc(Buffer.from('b5ee9c724102190100034a000114ff00f4a413f4bcf2c80b0102016202160202cc0310020120040a0201200509020120060801f71480b434c0cc7e9008f1c02497c13834c0c05c6c2497c13800f4c7f4cfcc48700066db107587f5824c3c01d7c0f80c3b51343e803e903e903d013d010c097000a7841157c140b4cfcc00fe800c3c02380dc93000e3884d01be800c00d4117c025105140cf214017e809400f3c58073c5bd003d00327b553804d7c0e007002a01c0049a03fa40fa00304034f00be05f04840ff2f000330c208203d0901c24d4c0ae6640608203d0902800693a0c006a20003d482080f42405112a121a8a070935302b9990182080f4240a101a4e83001a880201200b0c001b5f90074c8cb0212ca07cbffc9d080201200d0e001f3e911c083232c072c084b281f2fff26001e51c081b7208fe80be0a33c5be0a33c5bd00325c7e0a3c01951c4cf232c072c032c03332c03332c032573c0148b232c7f25de0063232c148f3c5897e80b2dac4f304b33260103ec03b51343e803e903e903d013d010c0517c1087e910c7209b3c58973c5b240a0c1fd05fe0a3e0a1b4411504c200f0028c85005fa025003cf1601cf16f400f400c9ed54590201481114020120121300b908f0803cb819977c006fbcb819fb51343e803e903e903d013d010c1b104875c2ffc860c1fd039be85c00650c3e800c244c78b21445683e8080b5c2ffc060c1fd10c0a81b5b5600db407214017e809400f3c58073c5bd003d00327b5520009508f0803cb8198875c2ffc860c1fd039be87cb819fe800c14c12fbcb819d4d0fc00b21449a844be8088f5c2ffd540a0c1fd10d40d285c20043232c15400f3c59400fe80b2dab260103ec02001f5522c200f2e06624d70bff228307f40e6fa1f2e067fa00305303bef2e067238103e8a9045340a102c806a115fa0206d70bff46038307f44323d70bff218307f40e6fa193fa0030923070e2c803a012fa0203d70bff43008307f44322d70bff218307f40e6fa193fa0030923070e2c803a012fa0202d70bff0183078150038f4436d6d6d58036d01c85005fa025003cf1601cf16f400f400c9ed5402037db817180056a8aaed44d0fa00fa40fa40f404f40430145f0401d70bff018307f40f6fa196d0d61fd60930e0308b088b080024abf6ed44d0fa00fa40fa40f404f404305f04ad8e855a', 'hex'))[0],
-              )
-          );
+      const provider = client.provider(Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh'))
+      const memeTon = provider.open(MemeTon.createFromAddress(Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh')));
+
       try {
         const contractAddress = Address.parse('EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh')
         setContract({address: contractAddress, memeTon})
