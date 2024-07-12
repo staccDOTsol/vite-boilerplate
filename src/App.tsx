@@ -187,7 +187,7 @@ function App() {
         messages: [
           {
             address: 'EQDImUxH2-nJLVYLxRlkhM1W-9K-52aYdVr8R4e00hTlvyGL',
-            amount: '0', // 0.05 TON in nanoTON
+            amount: '1000000',
             payload: beginCell()
               .storeUint(3, 32)  // op code for sell_tokens
               .storeUint(0, 64) // query_id as uint64
@@ -216,7 +216,7 @@ function App() {
         messages: [
           {
             address: 'EQDImUxH2-nJLVYLxRlkhM1W-9K-52aYdVr8R4e00hTlvyGL',
-            amount: '0', // 0.05 TON in nanoTON
+            amount: '1000000',
             payload: beginCell()
               .storeUint(1, 32)
               .storeUint(0, 64) // query_id as uint64
