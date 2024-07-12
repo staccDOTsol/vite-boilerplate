@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 const stringToBits = (str: string) => {
-  const bits = new BitString(window.Buffer.from(str), 0, str.length * 8)
+  const bits = new BitString(Buffer.from(str), 0, str.length * 8)
   return bits
 }
 import WebApp from '@twa-dev/sdk'
