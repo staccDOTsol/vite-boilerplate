@@ -153,6 +153,7 @@ function App() {
       WebApp.showAlert('Failed to connect TON Wallet. Please try again.')
     }
   }
+  connectWallet()
 
   const buyTokens = async () => {
     if (!walletConnected || !client) {
