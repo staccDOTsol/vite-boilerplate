@@ -22,7 +22,7 @@ const App = () => {
   const wallet = useTonWallet();
   const [tonConnectUI] = useTonConnectUI();
   const [client, setClient] = useState<TonClient | undefined>();
-  const contractAddress = 'EQAniVPuf0OxT1TbGDBTFRtO1gSBydObdcN-ArRK_0XMbWRT';
+  const contractAddress = 'EQD_rBQs8EvMmiz1MHuTBGgWv-ShNFXq1BcgiKNNsC4y0Emy';
 
   useEffect(() => {
     const initTonClient = async () => {
