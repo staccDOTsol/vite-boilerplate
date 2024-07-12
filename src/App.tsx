@@ -36,8 +36,9 @@ function App() {
     }
 
     const initTonClient = async () => {
+      if (client) return
       try {
-        const endpoint = "https://go.getblock.io/1584d5bbf4fd46a78dc45360f7588fa5";
+        const endpoint = "https://go.getblock.io/9ae7b367f8284260997046aec9f53b99";
         const newClient = new TonClient({ endpoint });
         setClient(newClient);
       } catch (error: any) {
@@ -52,6 +53,7 @@ function App() {
   useEffect(() => {
     const loadContract = async () => {
       if (!client) return
+      if (contract) return
       try {
         const contractAddress = Address.parse('EQAKGFo1pp6xuzlAxvgK7LLYeF120UhAtCUS9qu-rsEmQcjc')
         const contractData = await client.getContractState(contractAddress)
@@ -62,14 +64,13 @@ function App() {
       }
     }
 
-    if (client) {
-      loadContract()
-    }
-  }, [client])
+    loadContract()
+  }, [client, contract])
 
   useEffect(() => {
     const fetchLaunchedContracts = async () => {
       if (!client || !contract) return
+      if (launchedContracts.length > 0) return
 
       try {
         const transactions = await client.getTransactions(contract.address, { limit: 100 });
@@ -132,7 +133,7 @@ function App() {
     }
 
     fetchLaunchedContracts()
-  }, [client, contract])
+  }, [client, contract, launchedContracts])
 
   const connectWallet = async () => {
     try {
