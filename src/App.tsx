@@ -38,8 +38,12 @@ function App() {
     const initTonClient = async () => {
       if (client) return
       try {
-        const endpoint = "https://go.getblock.io/e71d3c517d124436b4c1cdf6843d0b8c";
-        const newClient = new TonClient({ endpoint });
+        const endpoint = "https://go.getblock.io";
+        const newClient = new TonClient({ 
+          endpoint,
+          timeout: 30000, // 30 seconds timeout
+          apiKey: 'e71d3c517d124436b4c1cdf6843d0b8c' // Replace with your actual API key
+        });
         setClient(newClient);
       } catch (error: any) {
         console.error('Failed to initialize TonClient:', error);
