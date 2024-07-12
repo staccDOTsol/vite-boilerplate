@@ -159,6 +159,7 @@ function App() {
             amount: amountCoins.toString(),
             payload: beginCell()
               .storeUint(2, 32)  // op code for buy_tokens
+              .storeUint(0, 64) // query_id as uint64
               .storeUint(amountCoins, 64)  // amount as uint64
               .endCell()
               .toBoc()
@@ -186,9 +187,10 @@ function App() {
         messages: [
           {
             address: 'EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh',
-            amount: '50000000', // 0.05 TON in nanoTON
+            amount: '0', // 0.05 TON in nanoTON
             payload: beginCell()
               .storeUint(3, 32)  // op code for sell_tokens
+              .storeUint(0, 64) // query_id as uint64
               .storeUint(amountCoins, 64)  // amount as uint64
               .endCell()
               .toBoc()
@@ -214,9 +216,10 @@ function App() {
         messages: [
           {
             address: 'EQDNtSKblX4-stYHbJj0gzXvbxN4Dz0je7rk1-I73REFABrh',
-            amount: '50000000', // 0.05 TON in nanoTON
+            amount: '0', // 0.05 TON in nanoTON
             payload: beginCell()
               .storeUint(1, 32)
+              .storeUint(0, 64) // query_id as uint64
               .storeBits(new BitString(Buffer.from(newContractName).slice(0, 32), 0, 32))
               .storeBits(new BitString(Buffer.from(newContractSymbol).slice(0, 10), 0, 10))
               .endCell()
