@@ -162,7 +162,7 @@ function App() {
     try {
       const amountCoins = toNano(amount)
       const totalSupply = await contract.memeTon.getTotalSupply();
-      const result = await contract.memeTon.buyToekns(WebApp.initDataUnsafe.user, {
+      const result = await contract.memeTon.sendBuyTokens(WebApp.initDataUnsafe.user, {
         amount: amountCoins,
         total_supply: totalSupply,
         sender: WebApp.initDataUnsafe.user,
@@ -187,7 +187,7 @@ function App() {
     try {
       const amountCoins = toNano(amount)
       const totalSupply = await contract.memeTon.getTotalSupply();
-      const result = await contract.memeTon.sellTokens(WebApp.initDataUnsafe.user, {
+      const result = await contract.memeTon.sendSellTokens(WebApp.initDataUnsafe.user, {
         amount: amountCoins,
         total_supply: totalSupply,
         sender: WebApp.initDataUnsafe.user
@@ -210,7 +210,7 @@ function App() {
       return
     }
     try {
-      const message = await contract.memeTon.deployMemecoin(WebApp.initDataUnsafe.user, {
+      const message = await contract.memeTon.sendDeployMemecoin(WebApp.initDataUnsafe.user, {
         name: newContractName,
         symbol: newContractSymbol,
         value: toNano('0.02'),
