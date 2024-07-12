@@ -71,6 +71,7 @@ const App = () => {
             const keyPriceResult = await contract.get('get_key_price', []);
             setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber())) + 0.5);
           } catch (error) {
+            setKeyPrice(0.5)
             console.error('Error fetching key price:', error);
           }
         };
