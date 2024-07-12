@@ -67,9 +67,9 @@ const App = () => {
 
           try {
             const keyPriceResult = await contract.get('get_key_price', []);
-            setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber())) + 0.666);
+            setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber())) + 1.2);
           } catch (error) {
-            setKeyPrice(0.666)
+            setKeyPrice(1.2)
             console.error('Error fetching key price:', error);
           }
 
@@ -131,6 +131,7 @@ const App = () => {
             payload: beginCell()
               .storeUint(1, 32) // op code for buy_keys
               .storeUint(0, 64) // query_id
+
               .endCell()
               .toBoc()
               .toString('base64'),
@@ -155,7 +156,7 @@ const App = () => {
         messages: [
           {
             address: contractAddress,
-            amount: toNano('0.666').toString(), // Small amount for gas
+            amount: toNano('1.2').toString(), // Small amount for gas
             payload: beginCell()
               .storeUint(0x595f07bc, 32) // op code for burn
               .storeUint(0, 64) // query_id
@@ -184,7 +185,7 @@ const App = () => {
         messages: [
           {
             address: contractAddress,
-            amount: toNano('0.666').toString(), // Small amount for gas
+            amount: toNano('1.2').toString(), // Small amount for gas
             payload: beginCell()
               .storeUint(2, 32) // op code for claim_win
               .storeUint(0, 64) // query_id
