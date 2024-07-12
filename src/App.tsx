@@ -146,7 +146,6 @@ const App = () => {
             amount: toNano(keyPrice).toString(),
             payload: beginCell()
               .storeUint(1, 32) // op code for buy_keys
-              
               .endCell()
               .toBoc()
               .toString('base64'),
@@ -174,7 +173,6 @@ const App = () => {
             amount: toNano('0.01').toString(), // Small amount for gas
             payload: beginCell()
               .storeUint(2, 32) // op code for claim_win
-              
               .endCell()
               .toBoc()
               .toString('base64'),
@@ -194,6 +192,9 @@ const App = () => {
     const remainingSeconds = seconds % 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
+
+  const isWinner = wallet && lastBuyer === wallet.account.address;
+  const canClaimWin = timeLeft === 0 && isWinner;
 
   return (
     <div className="App">
@@ -215,7 +216,9 @@ const App = () => {
           </div>
           <div className="actions">
             <button className="buy-keys" onClick={buyKeys}>Buy Keys for {keyPrice.toFixed(3)} TON</button>
-            <button className="claim-win" onClick={claimWin}>Claim Win</button>
+            {canClaimWin && (
+              <button className="claim-win" onClick={claimWin}>Claim Win</button>
+            )}
           </div>
         </>
       )}
