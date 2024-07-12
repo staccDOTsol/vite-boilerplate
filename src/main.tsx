@@ -50,6 +50,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <App />
     </TonConnectUIProvider>
 
-    <TokenCalculator />
   </React.StrictMode>
 );
