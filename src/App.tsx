@@ -146,7 +146,6 @@ const App = () => {
             amount: toNano(keyPrice).toString(),
             payload: beginCell()
               .storeUint(1, 32) // op code for buy_keys
-              .storeUint(0, 64) // query_id
 
               .endCell()
               .toBoc()
@@ -175,7 +174,6 @@ const App = () => {
             amount: toNano('0.01').toString(), // Small amount for gas
             payload: beginCell()
               .storeUint(2, 32) // op code for claim_win
-              .storeUint(0, 64) // query_id
               .endCell()
               .toBoc()
               .toString('base64'),
