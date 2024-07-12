@@ -1,7 +1,8 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import stringReplace from 'vite-plugin-string-replace';
 
 export default defineConfig({
   plugins: [
@@ -9,10 +10,17 @@ export default defineConfig({
       include: ['buffer'],
     }),
     react(),
-    basicSsl()
+    basicSsl(),
+    stringReplace({
+      include: 'node_modules/qrcode-terminal/lib/main.js',
+      replacements: [
+        { search: '\\033[40m  \\033[0m', replace: '\\x1b[40m  \\x1b[0m' },
+        { search: '\\033[47m  \\033[0m', replace: '\\x1b[47m  \\x1b[0m' },
+      ],
+    }),
   ],
   build: {
-    outDir: './docs'
+    outDir: './docs',
   },
   resolve: {
     alias: {
@@ -20,5 +28,5 @@ export default defineConfig({
       buffer: 'buffer',
     },
   },
-  base: '/vite-boilerplate/'
+  base: '/vite-boilerplate/',
 });
