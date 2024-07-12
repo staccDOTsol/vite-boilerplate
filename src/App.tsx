@@ -22,7 +22,7 @@ const App = () => {
   const wallet = useTonWallet();
   const [tonConnectUI] = useTonConnectUI();
   const [client, setClient] = useState<TonClient | undefined>();
-  const contractAddress = 'EQC8EHhlShsJjXU6D8QJGGVxKXyLPMreAKNa1Hv3-0jw5PcY';
+  const contractAddress = 'EQAniVPuf0OxT1TbGDBTFRtO1gSBydObdcN-ArRK_0XMbWRT';
 
   useEffect(() => {
     const initTonClient = async () => {
@@ -45,7 +45,7 @@ const App = () => {
 
   useEffect(() => {
     const fetchGameData = async () => {
-      if (!client) return;
+      if (!client || !wallet) return;
       try {
         const contract = client.provider(Address.parse(contractAddress));
         const fetchPotSize = async () => {
@@ -77,8 +77,8 @@ const App = () => {
 
         const fetchPlayerKeys = async () => {
           try {
-            const playerKeysResult = await contract.get('balance_of', [{ type: 'slice', cell: beginCell().storeAddress(Address.parse(wallet?.account.address ?? '')).endCell() }]);
-            setPlayerKeys(Number(playerKeysResult.stack.readNumber()));
+            const playerKeysResult = await contract.get('get_total_supply', []);
+            setPlayerKeys(Number(playerKeysResult.stack.readBigNumber()));
           } catch (error) {
             console.error('Error fetching player keys:', error);
           }
@@ -102,12 +102,12 @@ const App = () => {
           }
         };
 
-          fetchPotSize()
-          fetchTimeLeft()
-          fetchKeyPrice()
-          fetchPlayerKeys()
-          fetchLastBuyer()
-          fetchTotalSupply()
+        fetchPotSize();
+        fetchTimeLeft();
+        fetchKeyPrice();
+        fetchPlayerKeys();
+        fetchLastBuyer();
+        fetchTotalSupply();
       } catch (error) {
         console.error('Error fetching game data:', error);
       }
@@ -158,6 +158,35 @@ const App = () => {
     }
   };
 
+  const burnKeys = async (keysToBurn: number) => {
+    if (!wallet) {
+      WebApp.showAlert('Please connect your wallet first.');
+      return;
+    }
+    try {
+      await tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 600,
+        messages: [
+          {
+            address: contractAddress,
+            amount: toNano('0.05').toString(), // Small amount for gas
+            payload: beginCell()
+              .storeUint(0x595f07bc, 32) // op code for burn
+              .storeUint(0, 64) // query_id
+              .storeCoins(keysToBurn)
+              .endCell()
+              .toBoc()
+              .toString('base64'),
+          },
+        ],
+      });
+      WebApp.showAlert('Key burn initiated. Please wait for confirmation.');
+    } catch (error: any) {
+      console.error('Failed to burn keys:', error);
+      WebApp.showAlert(error.toString());
+    }
+  };
+
   const claimWin = async () => {
     if (!wallet) {
       WebApp.showAlert('Please connect your wallet first.');
@@ -193,8 +222,8 @@ const App = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  //const isWinner = wallet && lastBuyer === wallet.account.address || lastBuyer == '';
-  const canClaimWin = true//timeLeft === 0 && isWinner;
+  const isWinner = wallet && lastBuyer === wallet.account.address;
+  const canClaimWin = timeLeft === 0 && isWinner;
 
   return (
     <div className="App">
@@ -216,6 +245,7 @@ const App = () => {
           </div>
           <div className="actions">
             <button className="buy-keys" onClick={buyKeys}>Buy Keys for {keyPrice.toFixed(3)} TON</button>
+            <button className="burn-keys" onClick={() => burnKeys(1)}>Burn 1 Key</button>
             {canClaimWin && (
               <button className="claim-win" onClick={claimWin}>Claim Win</button>
             )}
@@ -231,6 +261,7 @@ const App = () => {
           <li>The last key buyer when the timer hits zero wins {PAYOUT_PERCENTAGE}% of the pot</li>
           <li>Key prices increase as more are bought, starting at {fromNano(INITIAL_KEY_PRICE)} TON</li>
           <li>{DIVIDEND_PERCENTAGE}% of each purchase goes to key holders as dividends</li>
+          <li>You can burn keys to extend the timer and increase your chances of winning</li>
         </ul>
         <p>Remember: Only invest what you can afford to lose. Good luck!</p>
       </div>
