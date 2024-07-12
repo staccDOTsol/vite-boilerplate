@@ -48,52 +48,30 @@ const App = () => {
       if (!client || !wallet) return;
       try {
         const contract = client.provider(Address.parse(contractAddress));
+        
+        const fetchData = async (method, setter, errorMessage) => {
           try {
-            const potSizeResult = await contract.get('get_pot_size', []);
-            setPotSize(Number(fromNano(potSizeResult.stack.readBigNumber())));
+            const result = await contract.get(method, []);
+            
+              const value = method === 'get_last_buyer' 
+                ? result.stack.readAddress().toString()
+                : Number(method.includes('price') ? fromNano(result.stack.readBigNumber()) : result.stack.readBigNumber());
+              setter(method === 'get_key_price' ? Number(value) + 0.3 : value);
           } catch (error) {
-            console.error('Error fetching pot size:', error);
+            console.error(errorMessage, error);
+            if (method === 'get_key_price') setter(0.3);
           }
+        };
 
-          try {
-            const timeLeftResult = await contract.get('get_time_left', []);
-            console.log(timeLeftResult)
-            console.log(timeLeftResult.stack)
-            console.log(timeLeftResult.stack.readNumber())
-            setTimeLeft(Number(timeLeftResult.stack.readNumber()));
-          } catch (error) {
-            console.error('Error fetching time left:', error);
-          }
+        await Promise.all([
+          fetchData('get_pot_size', setPotSize, 'Error fetching pot size:'),
+          fetchData('get_time_left', setTimeLeft, 'Error fetching time left:'),
+          fetchData('get_key_price', setKeyPrice, 'Error fetching key price:'),
+          fetchData('get_total_supply', setPlayerKeys, 'Error fetching player keys:'),
+          fetchData('get_last_buyer', setLastBuyer, 'Error fetching last buyer:'),
+          fetchData('get_total_supply', setTotalSupply, 'Error fetching total supply:')
+        ]);
 
-          try {
-            const keyPriceResult = await contract.get('get_key_price', []);
-            setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber())) + 0.3);
-          } catch (error) {
-            setKeyPrice(0.3)
-            console.error('Error fetching key price:', error);
-          }
-
-          try {
-            const playerKeysResult = await contract.get('get_total_supply', []);
-            setPlayerKeys(Number(playerKeysResult.stack.readBigNumber()));
-          } catch (error) {
-            console.error('Error fetching player keys:', error);
-          }
-
-          try {
-            const lastBuyerResult = await contract.get('get_last_buyer', []);
-            setLastBuyer(lastBuyerResult.stack.readAddress().toString());
-          } catch (error) {
-            console.error('Error fetching last buyer:', error);
-          }
-
-          try {
-            const totalSupplyResult = await contract.get('get_total_supply', []);
-            setTotalSupply(Number(totalSupplyResult.stack.readBigNumber()));
-          } catch (error) {
-            console.error('Error fetching total supply:', error);
-          }
-     
       } catch (error) {
         console.error('Error fetching game data:', error);
       }
