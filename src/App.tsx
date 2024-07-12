@@ -48,21 +48,68 @@ const App = () => {
       if (!client) return;
       try {
         const contract = client.provider(Address.parse(contractAddress));
-        const [potSizeResult, timeLeftResult, keyPriceResult, playerKeysResult, lastBuyerResult, totalSupplyResult] = await Promise.all([
-          contract.get('get_pot_size', []),
-          contract.get('get_time_left', []),
-          contract.get('get_key_price', []),
-          contract.get('balance_of', [{ type: 'slice', cell: beginCell().storeAddress(Address.parse(wallet?.account.address ?? '')).endCell() }]),
-          contract.get('get_last_buyer', []),
-          contract.get('get_total_supply', [])
-        ]);
+        const fetchPotSize = async () => {
+          try {
+            const potSizeResult = await contract.get('get_pot_size', []);
+            setPotSize(Number(fromNano(potSizeResult.stack.readBigNumber())));
+          } catch (error) {
+            console.error('Error fetching pot size:', error);
+          }
+        };
 
-        setPotSize(Number(fromNano(potSizeResult.stack.readBigNumber())));
-        setTimeLeft(Number(timeLeftResult.stack.readNumber()));
-        setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber()))+0.01);
-        setPlayerKeys(Number(playerKeysResult.stack.readNumber()));
-        setLastBuyer(lastBuyerResult.stack.readAddress().toString());
-        setTotalSupply(Number(totalSupplyResult.stack.readBigNumber()));
+        const fetchTimeLeft = async () => {
+          try {
+            const timeLeftResult = await contract.get('get_time_left', []);
+            setTimeLeft(Number(timeLeftResult.stack.readNumber()));
+          } catch (error) {
+            console.error('Error fetching time left:', error);
+          }
+        };
+
+        const fetchKeyPrice = async () => {
+          try {
+            const keyPriceResult = await contract.get('get_key_price', []);
+            setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber())) + 0.01);
+          } catch (error) {
+            console.error('Error fetching key price:', error);
+          }
+        };
+
+        const fetchPlayerKeys = async () => {
+          try {
+            const playerKeysResult = await contract.get('balance_of', [{ type: 'slice', cell: beginCell().storeAddress(Address.parse(wallet?.account.address ?? '')).endCell() }]);
+            setPlayerKeys(Number(playerKeysResult.stack.readNumber()));
+          } catch (error) {
+            console.error('Error fetching player keys:', error);
+          }
+        };
+
+        const fetchLastBuyer = async () => {
+          try {
+            const lastBuyerResult = await contract.get('get_last_buyer', []);
+            setLastBuyer(lastBuyerResult.stack.readAddress().toString());
+          } catch (error) {
+            console.error('Error fetching last buyer:', error);
+          }
+        };
+
+        const fetchTotalSupply = async () => {
+          try {
+            const totalSupplyResult = await contract.get('get_total_supply', []);
+            setTotalSupply(Number(totalSupplyResult.stack.readBigNumber()));
+          } catch (error) {
+            console.error('Error fetching total supply:', error);
+          }
+        };
+
+        await Promise.all([
+          fetchPotSize(),
+          fetchTimeLeft(),
+          fetchKeyPrice(),
+          fetchPlayerKeys(),
+          fetchLastBuyer(),
+          fetchTotalSupply()
+        ]);
       } catch (error) {
         console.error('Error fetching game data:', error);
       }
