@@ -59,7 +59,7 @@ const App = () => {
 
         setPotSize(Number(fromNano(potSizeResult.stack.readBigNumber())));
         setTimeLeft(Number(timeLeftResult.stack.readNumber()));
-        setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber()))+0.001);
+        setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber()))+0.01);
         setPlayerKeys(Number(playerKeysResult.stack.readNumber()));
         setLastBuyer(lastBuyerResult.stack.readAddress().toString());
         setTotalSupply(Number(totalSupplyResult.stack.readBigNumber()));
