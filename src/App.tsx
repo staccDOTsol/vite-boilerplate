@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import WebApp from '@twa-dev/sdk'
-import { TonClient, Address, beginCell, toNano, CellType, fromNano, BitString } from '@ton/ton'
+import { TonClient, Address, beginCell, toNano, CellType, fromNano } from '@ton/ton'
 import { getHttpEndpoint } from '@orbs-network/ton-access'
 import { useTonAddress, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 
@@ -220,8 +220,8 @@ function App() {
             payload: beginCell()
               .storeUint(1, 32)
               .storeUint(0, 64) // query_id as uint64
-              .storeBits(new BitString(Buffer.from(newContractName).slice(0, 32), 0, 32))
-              .storeBits(new BitString(Buffer.from(newContractSymbol).slice(0, 10), 0, 10))
+              .storeStringTail(newContractName)
+              .storeStringTail(newContractSymbol)
               .endCell()
               .toBoc()
               .toString('base64'),
