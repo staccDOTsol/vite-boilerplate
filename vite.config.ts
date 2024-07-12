@@ -13,11 +13,11 @@ export default defineConfig({
     basicSsl(),
     stringReplace([
       {
-        search: '\\033[40m  \\03[0m',
+        search: '\\033\\[40m  \\033\\[0m',
         replace: '\\x1b[40m  \\x1b[0m'
       },
       {
-        search: '\\033[47m  \\03[0m',
+        search: '\\033\\[47m  \\033\\[0m',
         replace: '\\x1b[47m  \\x1b[0m'
       }
     ]),
