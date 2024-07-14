@@ -83,7 +83,7 @@ const App = () => {
             address: contractAddress,
             amount: toNano(keyPrice).toString(),
             payload: beginCell()
-              .storeUint(3, 32) // op code for buy_keys
+              .storeUint(1, 32) // op code for buy_keys
               .storeUint(0, 64) // query_id
               .endCell()
               .toBoc()
