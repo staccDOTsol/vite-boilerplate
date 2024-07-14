@@ -25,6 +25,10 @@ export class MemeTon implements Contract {
         const init = { code, data };
         return new MemeTon(contractAddress(workchain, init), init);
     }
+    async getGameState(provider: ContractProvider) {
+        const result = await provider.get('get_game_state', []);
+        return result.stack.readCell();
+    }
 
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
@@ -65,7 +69,7 @@ export class MemeTon implements Contract {
     }
     async getLastBuyer(provider: ContractProvider) {
         const result = await provider.get('get_last_buyer', []);
-        return result.stack.readAddress();
+        return result.stack.readAddressOpt();
     }
 
     async getTimeLeft(provider: ContractProvider) {

@@ -49,21 +49,12 @@ const App = () => {
         try {
       const contract = client.open(MemeTon.createFromAddress(Address.parse(contractAddress)));
   
-      const potSizeResult = await contract.getPotSize();
-      const potSize = potSizeResult;
-  
-      const lastBuyerResult = await contract.getLastBuyer();
-      const lastBuyer = lastBuyerResult;
-  
-      const endTimeResult = await contract.getTimeLeft();
-      const endTime = endTimeResult;
-  
-      const totalKeysResult = await contract.getTotalSupply();
-      const totalKeys = totalKeysResult;
-  
-      const lastPriceResult = await contract.getKeyPrice();
-      const lastPrice = lastPriceResult;
-  
+      const potSizeResult = await contract.getGameState()
+      const potSize = potSizeResult[0];
+      const lastBuyer = potSizeResult[1];
+      const endTime = potSizeResult[2];
+      const totalKeys = potSizeResult[3];
+      const lastPrice = potSizeResult[4];
       setPotSize(Number(fromNano(potSize)));
       setLastBuyer(lastBuyer ? lastBuyer.toString() : 'No buyer yet');
       setTimeLeft(Math.max(0, Number(endTime) - Math.floor(Date.now() / 1000)));
