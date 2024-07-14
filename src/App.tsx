@@ -57,19 +57,21 @@ const App = () => {
 
           try {
             const timeLeftResult = await contract.get('get_time_left', []);
-            console.log(timeLeftResult)
-            console.log(timeLeftResult.stack)
-            console.log(timeLeftResult.stack.readNumber())
-            setTimeLeft(Number(timeLeftResult.stack.readNumber()));
+            // @ts-ignore
+            if (timeLeftResult.stack.items.length > 0) {
+              setTimeLeft(Number(timeLeftResult.stack.readNumber()));
+            } else {
+              console.error('Error fetching time left: Empty stack');
+            }
           } catch (error) {
             console.error('Error fetching time left:', error);
           }
 
           try {
             const keyPriceResult = await contract.get('get_key_price', []);
-            setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber())) + 0.38);
+            setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber())) + 2.22);
           } catch (error) {
-            setKeyPrice(0.38)
+            setKeyPrice(2.22)
             console.error('Error fetching key price:', error);
           }
 
@@ -82,7 +84,12 @@ const App = () => {
 
           try {
             const lastBuyerResult = await contract.get('get_last_buyer', []);
-            setLastBuyer(lastBuyerResult.stack.readAddress().toString());
+            const lastBuyerCell = lastBuyerResult.stack.readCell();
+            if (lastBuyerCell) {
+              setLastBuyer(lastBuyerCell.beginParse().loadAddress().toString());
+            } else {
+              console.error('Error fetching last buyer: Null cell');
+            }
           } catch (error) {
             console.error('Error fetching last buyer:', error);
           }
@@ -159,7 +166,7 @@ const App = () => {
         messages: [
           {
             address: contractAddress,
-            amount: toNano('0.38').toString(), // Small amount for gas
+            amount: toNano('2.22').toString(), // Small amount for gas
             payload: beginCell()
               .storeUint(0x595f07bc, 32) // op code for burn
               .storeUint(0, 64) // query_id
@@ -188,7 +195,7 @@ const App = () => {
         messages: [
           {
             address: contractAddress,
-            amount: toNano('0.38').toString(), // Small amount for gas
+            amount: toNano('2.22').toString(), // Small amount for gas
             payload: beginCell()
               .storeUint(2, 32) // op code for claim_win
               .storeUint(0, 64) // query_id
