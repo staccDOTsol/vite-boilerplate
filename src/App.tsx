@@ -42,30 +42,37 @@ const App = () => {
     initTonClient();
   }, []);
 
-  useEffect(() => {
-    const fetchGameData = async () => {
-      if (!client || !wallet) return;
-      try {
-        const contract = client.provider(Address.parse(contractAddress));
-        const gameStateResult = await contract.get('get_game_state', []);
-        const potSize = gameStateResult.stack.readBigNumber();
-        const lastBuyer = gameStateResult.stack.readAddress();
-        const endTime = gameStateResult.stack.readNumber();
-        const totalKeys = gameStateResult.stack.readNumber();
-        const lastPrice = gameStateResult.stack.readBigNumber();
-        
-        setPotSize(Number(fromNano(potSize)));
-        setLastBuyer(lastBuyer.toString());
-        setTimeLeft(Math.max(0, Number(endTime) - Math.floor(Date.now() / 1000)));
-        setTotalSupply(Number(totalKeys));
-        setKeyPrice(Number(fromNano(lastPrice)) + 0.38);
-      } catch (error) {
-        console.error('Error fetching game state:', error);
-        WebApp.showAlert('Failed to fetch game state. Please try again later.');
-      }
-      setTimeout(fetchGameData, 5000); // Update every 5 seconds
-    };
-
+  useEffect(() => {const fetchGameData = async () => {
+    if (!client || !wallet) return;
+    try {
+      const contract = client.provider(Address.parse(contractAddress));
+  
+      const potSizeResult = await contract.get('get_pot_size', []);
+      const potSize = potSizeResult.stack.readBigNumber();
+  
+      const lastBuyerResult = await contract.get('get_last_buyer', []);
+      const lastBuyer = lastBuyerResult.stack.readAddress();
+  
+      const endTimeResult = await contract.get('get_time_left', []);
+      const endTime = endTimeResult.stack.readNumber();
+  
+      const totalKeysResult = await contract.get('get_total_supply', []);
+      const totalKeys = totalKeysResult.stack.readNumber();
+  
+      const lastPriceResult = await contract.get('get_key_price', []);
+      const lastPrice = lastPriceResult.stack.readBigNumber();
+  
+      setPotSize(Number(fromNano(potSize)));
+      setLastBuyer(lastBuyer.toString());
+      setTimeLeft(Math.max(0, Number(endTime) - Math.floor(Date.now() / 1000)));
+      setTotalSupply(Number(totalKeys));
+      setKeyPrice(Number(fromNano(lastPrice)) + 0.38);
+    } catch (error) {
+      console.error('Error fetching game state:', error);
+      WebApp.showAlert('Failed to fetch game state. Please try again later.');
+    }
+    setTimeout(fetchGameData, 5000); // Update every 5 seconds
+  };
     fetchGameData();
      
 
