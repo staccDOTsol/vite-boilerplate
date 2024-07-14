@@ -76,24 +76,24 @@ export class MemeTon implements Contract {
                 .endCell(),
         });
     }
-
     async getTotalSupply(provider: ContractProvider) {
         const result = await provider.get('get_total_supply', []);
-        return result.stack.readNumber();
+        return result.stack.readBigNumber();
     }
+
     async getPotSize(provider: ContractProvider) {
         const result = await provider.get('get_pot_size', []);
-        return result.stack.readNumber();
+        return result.stack.readBigNumber();
     }
+
     async getLastBuyer(provider: ContractProvider) {
         const result = await provider.get('get_last_buyer', []);
-        console.log(result.stack)
         return result.stack.readAddress();
     }
 
     async getTimeLeft(provider: ContractProvider) {
         const result = await provider.get('get_time_left', []);
-        return result.stack.readNumber();
+        return result.stack.readBigNumber();
     }
 
     async getKeyPrice(provider: ContractProvider) {
