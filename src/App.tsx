@@ -16,7 +16,6 @@ const App = () => {
   const [potSize, setPotSize] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
   const [keyPrice, setKeyPrice] = useState(0);
-  const [playerKeys, setPlayerKeys] = useState(0);
   const [lastBuyer, setLastBuyer] = useState('');
   const [totalSupply, setTotalSupply] = useState(0);
   const wallet = useTonWallet();
@@ -73,13 +72,6 @@ const App = () => {
           } catch (error) {
             setKeyPrice(0.38)
             console.error('Error fetching key price:', error);
-          }
-
-          try {
-            const playerKeysResult = await contract.get('get_total_supply', []);
-            setPlayerKeys(Number(playerKeysResult.stack.readBigNumber()));
-          } catch (error) {
-            console.error('Error fetching player keys:', error);
           }
 
           try {
@@ -239,7 +231,6 @@ const App = () => {
             <h2>Current Pot: {potSize.toFixed(2)} TON</h2>
             <h2>Time Left: {formatTime(timeLeft)}</h2>
             <h3>Key Price: {keyPrice.toFixed(3)} TON</h3>
-            <h3>Your Keys: {playerKeys}</h3>
             <h3>Total Keys: {totalSupply}</h3>
             <h4>Last Buyer: {lastBuyer === 'No buyer yet' || lastBuyer === 'Error fetching last buyer' ? lastBuyer : `${lastBuyer.slice(0, 6)}...${lastBuyer.slice(-4)}`}</h4>
           </div>
