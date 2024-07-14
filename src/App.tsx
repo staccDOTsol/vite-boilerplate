@@ -15,7 +15,7 @@ const DIVIDEND_PERCENTAGE = 5; // 5% of each purchase goes to key holders as div
 const App = () => {
   const [potSize, setPotSize] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
-  const [keyPrice, setKeyPrice] = useState(0.38);
+  const [keyPrice, setKeyPrice] = useState(1.39);
   const [lastBuyer, setLastBuyer] = useState('');
   const [totalSupply, setTotalSupply] = useState(0);
   const wallet = useTonWallet();
@@ -66,7 +66,7 @@ const App = () => {
       setLastBuyer(lastBuyer.toString());
       setTimeLeft(Math.max(0, Number(endTime) - Math.floor(Date.now() / 1000)));
       setTotalSupply(Number(totalKeys));
-      setKeyPrice(Number(fromNano(lastPrice)) + 0.38);
+      setKeyPrice(Number(fromNano(lastPrice)) + 1.39);
     } catch (error) {
       console.error('Error fetching game state:', error);
       WebApp.showAlert('Failed to fetch game state. Please try again later.');
@@ -122,7 +122,7 @@ const App = () => {
         messages: [
           {
             address: contractAddress,
-            amount: toNano('0.38').toString(), // Small amount for gas
+            amount: toNano('1.39').toString(), // Small amount for gas
             payload: beginCell()
               .storeUint(0x595f07bc, 32) // op code for burn
               .storeUint(0, 64) // query_id
@@ -151,7 +151,7 @@ const App = () => {
         messages: [
           {
             address: contractAddress,
-            amount: toNano('0.38').toString(), // Small amount for gas
+            amount: toNano('1.39').toString(), // Small amount for gas
             payload: beginCell()
               .storeUint(2, 32) // op code for claim_win
               .storeUint(0, 64) // query_id
