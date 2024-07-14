@@ -28,6 +28,7 @@ export class MemeTon implements Contract {
 
     async getGameState(provider: ContractProvider) {
         const result = await provider.get('get_game_state', []);
+        try {
         return {
             potSize: result.stack.readNumber(),
             lastPlayer: result.stack.readAddress(),
@@ -35,6 +36,16 @@ export class MemeTon implements Contract {
             totalKeys: result.stack.readNumber(),
             lastPrice: result.stack.readNumber()
         };
+    } catch (Err){
+
+        return {
+            potSize: 0,
+            lastPlayer: Address.parse("EQDJDqftf89BTR7YAedf2Ha_v0iZjRlmr08jM2wrUL0rAQxR"),
+            endTime: 0,
+            totalKeys: 0,
+            lastPrice: 0
+        };
+    }
     }
 
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
