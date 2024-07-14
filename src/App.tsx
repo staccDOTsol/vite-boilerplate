@@ -84,14 +84,17 @@ const App = () => {
 
           try {
             const lastBuyerResult = await contract.get('get_last_buyer', []);
-            const lastBuyerCell = lastBuyerResult.stack.readCell();
-            if (lastBuyerCell) {
-              setLastBuyer(lastBuyerCell.beginParse().loadAddress().toString());
+            // @ts-ignore
+            if (lastBuyerResult.stack.items.length > 0) {
+              const lastBuyerAddress = lastBuyerResult.stack.readAddress();
+              setLastBuyer(lastBuyerAddress ? lastBuyerAddress.toString() : 'No buyer yet');
             } else {
-              console.error('Error fetching last buyer: Null cell');
+              console.error('Error fetching last buyer: Empty stack');
+              setLastBuyer('No buyer yet');
             }
           } catch (error) {
             console.error('Error fetching last buyer:', error);
+            setLastBuyer('Error fetching last buyer');
           }
 
           try {
@@ -238,7 +241,7 @@ const App = () => {
             <h3>Key Price: {keyPrice.toFixed(3)} TON</h3>
             <h3>Your Keys: {playerKeys}</h3>
             <h3>Total Keys: {totalSupply}</h3>
-            <h4>Last Buyer: {lastBuyer.slice(0, 6)}...{lastBuyer.slice(-4)}</h4>
+            <h4>Last Buyer: {lastBuyer === 'No buyer yet' || lastBuyer === 'Error fetching last buyer' ? lastBuyer : `${lastBuyer.slice(0, 6)}...${lastBuyer.slice(-4)}`}</h4>
           </div>
           <div className="actions">
             <button className="buy-keys" onClick={buyKeys}>Buy Keys for {keyPrice.toFixed(3)} TON</button>
