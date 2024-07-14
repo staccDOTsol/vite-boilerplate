@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useTonWallet, useTonConnectUI } from '@tonconnect/ui-react';
-import { TonConnectButton } from '@tonconnect/ui-react';
+import { useTonWallet, useTonConnectUI, TonConnectButton } from '@tonconnect/ui-react';
+import { MemeTon } from '../../wrappers/MemeTon';
+
 import './App.css';
 import { beginCell } from '@ton/core';
 import { TonClient, Address, toNano, fromNano } from '@ton/ton'
@@ -44,26 +45,27 @@ const App = () => {
 
   useEffect(() => {const fetchGameData = async () => {
     if (!client || !wallet) return;
-    try {
-      const contract = client.provider(Address.parse(contractAddress));
+      const fetchGameData = async () => {
+        try {
+      const contract = client.open(MemeTon.createFromAddress(Address.parse(contractAddress)));
   
-      const potSizeResult = await contract.get('get_pot_size', []);
-      const potSize = potSizeResult.stack.readNumber();
+      const potSizeResult = await contract.getPotSize();
+      const potSize = potSizeResult;
   
-      const lastBuyerResult = await contract.get('get_last_buyer', []);
-      const lastBuyer = lastBuyerResult.stack.readAddress();
+      const lastBuyerResult = await contract.getLastBuyer();
+      const lastBuyer = lastBuyerResult;
   
-      const endTimeResult = await contract.get('get_time_left', []);
-      const endTime = endTimeResult.stack.readNumber();
+      const endTimeResult = await contract.getTimeLeft();
+      const endTime = endTimeResult;
   
-      const totalKeysResult = await contract.get('get_total_supply', []);
-      const totalKeys = totalKeysResult.stack.readNumber();
+      const totalKeysResult = await contract.getTotalSupply();
+      const totalKeys = totalKeysResult;
   
-      const lastPriceResult = await contract.get('get_key_price', []);
-      const lastPrice = lastPriceResult.stack.readBigNumber();
+      const lastPriceResult = await contract.getKeyPrice();
+      const lastPrice = lastPriceResult;
   
       setPotSize(Number(fromNano(potSize)));
-      setLastBuyer(lastBuyer.toString());
+      setLastBuyer(lastBuyer ? lastBuyer.toString() : 'No buyer yet');
       setTimeLeft(Math.max(0, Number(endTime) - Math.floor(Date.now() / 1000)));
       setTotalSupply(Number(totalKeys));
       setKeyPrice(Number(fromNano(lastPrice)) + 0.222);
@@ -71,6 +73,7 @@ const App = () => {
       console.error('Error fetching game state:', error);
       WebApp.showAlert('Failed to fetch game state. Please try again later.');
     }
+  }
     setTimeout(fetchGameData, 5000); // Update every 5 seconds
   };
     fetchGameData();
