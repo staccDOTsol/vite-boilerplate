@@ -53,8 +53,6 @@ const App = () => {
       const potSize = potSizeResult;
   
       setPotSize(Number(fromNano(potSize)));
-      const lastBuyerResult = await contract.getLastBuyer();
-      const lastBuyer = lastBuyerResult;
 
       const endTimeResult = await contract.getTimeLeft();
       const endTime = endTimeResult;
@@ -68,7 +66,6 @@ const App = () => {
       const lastPrice = lastPriceResult;
   
       setKeyPrice(Number(fromNano(lastPrice)) + 0.222);
-      setLastBuyer(lastBuyer ? lastBuyer.toString() : 'No buyer yet');
   
     } catch (error) {
       console.error('Error fetching game state:', error);
