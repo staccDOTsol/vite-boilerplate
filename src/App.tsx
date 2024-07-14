@@ -22,7 +22,7 @@ const App = () => {
   const wallet = useTonWallet();
   const [tonConnectUI] = useTonConnectUI();
   const [client, setClient] = useState<TonClient | undefined>();
-  const contractAddress = 'EQBK7nmUPfDNNEMHTgKj9XaTm_XHxmdl3x5ETMs5cdoRSr4U';
+  const contractAddress = 'EQChE1bZUzYoWkT8gkOtZt1kM4UcZgEySFyoKP7ZHnVq--Je';
 
   useEffect(() => {
     const initTonClient = async () => {
@@ -69,9 +69,9 @@ const App = () => {
 
           try {
             const keyPriceResult = await contract.get('get_key_price', []);
-            setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber())) + 2.22);
+            setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber())) + 0.666);
           } catch (error) {
-            setKeyPrice(2.22)
+            setKeyPrice(0.666)
             console.error('Error fetching key price:', error);
           }
 
@@ -166,7 +166,7 @@ const App = () => {
         messages: [
           {
             address: contractAddress,
-            amount: toNano('2.22').toString(), // Small amount for gas
+            amount: toNano('0.666').toString(), // Small amount for gas
             payload: beginCell()
               .storeUint(0x595f07bc, 32) // op code for burn
               .storeUint(0, 64) // query_id
@@ -195,7 +195,7 @@ const App = () => {
         messages: [
           {
             address: contractAddress,
-            amount: toNano('2.22').toString(), // Small amount for gas
+            amount: toNano('0.666').toString(), // Small amount for gas
             payload: beginCell()
               .storeUint(2, 32) // op code for claim_win
               .storeUint(0, 64) // query_id
