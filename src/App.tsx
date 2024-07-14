@@ -123,7 +123,7 @@ const App = () => {
     }
     try {
       await tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 600,
+        validUntil: Math.floor(Date.now() ) * 2,
         messages: [
           {
             address: contractAddress,
@@ -152,7 +152,7 @@ const App = () => {
     }
     try {
       await tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 600,
+        validUntil: Math.floor(Date.now() ) * 2,
         messages: [
           {
             address: contractAddress,
@@ -181,7 +181,7 @@ const App = () => {
     }
     try {
       await tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 600,
+        validUntil: Math.floor(Date.now() ) * 2,
         messages: [
           {
             address: contractAddress,
