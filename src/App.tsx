@@ -17,7 +17,6 @@ const App = () => {
   const [potSize, setPotSize] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
   const [keyPrice, setKeyPrice] = useState(0.222);
-  const [lastBuyer, setLastBuyer] = useState('');
   const [totalSupply, setTotalSupply] = useState(0);
   const wallet = useTonWallet();
   const [tonConnectUI] = useTonConnectUI();
@@ -175,7 +174,7 @@ const App = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const isWinner = wallet && lastBuyer === wallet.account.address;
+  const isWinner = true;
   const canClaimWin = timeLeft === 0 && isWinner;
 
   return (
@@ -193,7 +192,6 @@ const App = () => {
             <h2>Time Left: {formatTime(timeLeft)}</h2>
             <h3>Key Price: {keyPrice.toFixed(3)} TON</h3>
             <h3>Total Keys: {totalSupply}</h3>
-            <h4>Last Buyer: {lastBuyer === 'No buyer yet' || lastBuyer === 'Error fetching last buyer' ? lastBuyer : `${lastBuyer.slice(0, 6)}...${lastBuyer.slice(-4)}`}</h4>
           </div>
           <div className="actions">
             <button className="buy-keys" onClick={buyKeys}>Buy Keys for {keyPrice.toFixed(3)} TON</button>
