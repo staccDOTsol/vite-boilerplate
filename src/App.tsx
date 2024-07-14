@@ -21,7 +21,7 @@ const App = () => {
   const wallet = useTonWallet();
   const [tonConnectUI] = useTonConnectUI();
   const [client, setClient] = useState<TonClient | undefined>();
-  const contractAddress = 'EQDZMhBdv0eVv5BCHjAcfFevvp-1U1J7JOJiZNWpvt7354Y1';
+  const contractAddress = 'EQArdv7FyWkxYpsyEG-0H65MPiqnqn16yzzuERCy7X5e6zdx';
 
   useEffect(() => {
     const initTonClient = async () => {
@@ -92,7 +92,7 @@ const App = () => {
             address: contractAddress,
             amount: toNano(keyPrice).toString(),
             payload: beginCell()
-              .storeUint(1, 32) // op code for buy_keys
+              .storeUint(3, 32) // op code for buy_keys
               .storeUint(0, 64) // query_id
               .endCell()
               .toBoc()
