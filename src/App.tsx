@@ -107,16 +107,6 @@ const App = () => {
 
   }, [client, wallet]);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime <= 0) return 0;
-        return prevTime - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
 
   const buyKeys = async () => {
     if (!wallet) {
