@@ -66,7 +66,7 @@ const App = () => {
       setTotalSupply(Number(totalKeys));
       const lastBuyerResult = await contract.get('get_last_buyer', []);
       const lastBuyer = lastBuyerResult.stack.readAddress();
-      setLastPlayer(lastBuyer.toString());
+      setLastPlayer(lastBuyer.toString().substring(0, 4) + '...' + lastBuyer.toString().substring(-4));
     } catch (error) {
       console.error('Error fetching game state:', error);
       WebApp.showAlert('Failed to fetch game state. Please try again later.');
@@ -197,7 +197,6 @@ const App = () => {
           </div>
           <div className="actions">
             <button className="buy-keys" onClick={buyKeys}>Buy Keys for {keyPrice.toFixed(3)} TON</button>
-            <button className="burn-keys" onClick={() => burnKeys(1)}>Burn 1 Key</button>
             {canClaimWin && (
               <button className="claim-win" onClick={claimWin}>Claim Win</button>
             )}
