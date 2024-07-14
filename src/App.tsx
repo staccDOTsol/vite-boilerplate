@@ -52,23 +52,24 @@ const App = () => {
       const potSizeResult = await contract.getPotSize();
       const potSize = potSizeResult;
   
+      setPotSize(Number(fromNano(potSize)));
       const lastBuyerResult = await contract.getLastBuyer();
       const lastBuyer = lastBuyerResult;
-  
+
       const endTimeResult = await contract.getTimeLeft();
       const endTime = endTimeResult;
+      setTimeLeft(Math.max(0, Number(endTime) - Math.floor(Date.now() / 1000)));
   
       const totalKeysResult = await contract.getTotalSupply();
       const totalKeys = totalKeysResult;
   
+      setTotalSupply(Number(totalKeys));
       const lastPriceResult = await contract.getKeyPrice();
       const lastPrice = lastPriceResult;
   
-      setPotSize(Number(fromNano(potSize)));
-      setLastBuyer(lastBuyer ? lastBuyer.toString() : 'No buyer yet');
-      setTimeLeft(Math.max(0, Number(endTime) - Math.floor(Date.now() / 1000)));
-      setTotalSupply(Number(totalKeys));
       setKeyPrice(Number(fromNano(lastPrice)) + 0.222);
+      setLastBuyer(lastBuyer ? lastBuyer.toString() : 'No buyer yet');
+  
     } catch (error) {
       console.error('Error fetching game state:', error);
       WebApp.showAlert('Failed to fetch game state. Please try again later.');
