@@ -15,7 +15,7 @@ const DIVIDEND_PERCENTAGE = 5; // 5% of each purchase goes to key holders as div
 const App = () => {
   const [potSize, setPotSize] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
-  const [keyPrice, setKeyPrice] = useState(0);
+  const [keyPrice, setKeyPrice] = useState(0.38);
   const [lastBuyer, setLastBuyer] = useState('');
   const [totalSupply, setTotalSupply] = useState(0);
   const wallet = useTonWallet();
