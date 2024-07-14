@@ -48,12 +48,11 @@ const App = () => {
       try {
         const contract = client.provider(Address.parse(contractAddress));
         const gameStateResult = await contract.get('get_game_state', []);
-        const tuple = gameStateResult.stack.readTuple();
-        const potSize = tuple.readBigNumber();
-        const lastBuyer = tuple.readAddress();
-        const endTime = tuple.readNumber();
-        const totalKeys = tuple.readNumber();
-        const lastPrice = tuple.readBigNumber();
+        const potSize = gameStateResult.stack.readBigNumber();
+        const lastBuyer = gameStateResult.stack.readAddress();
+        const endTime = gameStateResult.stack.readNumber();
+        const totalKeys = gameStateResult.stack.readNumber();
+        const lastPrice = gameStateResult.stack.readBigNumber();
         
         setPotSize(Number(fromNano(potSize)));
         setLastBuyer(lastBuyer.toString());
