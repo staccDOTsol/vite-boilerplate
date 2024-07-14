@@ -22,7 +22,7 @@ const App = () => {
   const wallet = useTonWallet();
   const [tonConnectUI] = useTonConnectUI();
   const [client, setClient] = useState<TonClient | undefined>();
-  const contractAddress = 'EQBt8xyoDL57nkqgEj4ppgxkKE99iKC4Pv8Uv-RczJ4cjJdb';
+  const contractAddress = 'EQCrRq-o0-eBMaQKD58drX6athrIlm2uwpxfROKlq911fA4y';
 
   useEffect(() => {
     const initTonClient = async () => {
@@ -123,7 +123,7 @@ const App = () => {
     }
     try {
       await tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() ) * 2,
+        validUntil: Math.floor(Date.now() / 1000) + 600, // Valid for 10 minutes
         messages: [
           {
             address: contractAddress,
@@ -131,7 +131,6 @@ const App = () => {
             payload: beginCell()
               .storeUint(1, 32) // op code for buy_keys
               .storeUint(0, 64) // query_id
-
               .endCell()
               .toBoc()
               .toString('base64'),
@@ -141,7 +140,11 @@ const App = () => {
       WebApp.showAlert('Key purchase initiated. Please wait for confirmation.');
     } catch (error: any) {
       console.error('Failed to buy keys:', error);
-      WebApp.showAlert(error.toString());
+      if (error.message && error.message.includes('Unable to emulate boc')) {
+        WebApp.showAlert('Transaction failed: Unable to process the request. Please try again.');
+      } else {
+        WebApp.showAlert(`Transaction failed: ${error.message || 'Unknown error'}`);
+      }
     }
   };
 
