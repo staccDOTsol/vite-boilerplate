@@ -49,7 +49,7 @@ const App = () => {
         const contract = client.provider(Address.parse(contractAddress));
           try {
             const potSizeResult = await contract.get('get_pot_size', []);
-            setPotSize(Number(fromNano(potSizeResult.stack.readBigNumber())));
+            setPotSize(Number(fromNano(potSizeResult.stack.readNumber())));
           } catch (error) {
             console.error('Error fetching pot size:', error);
           }
@@ -68,7 +68,7 @@ const App = () => {
 
           try {
             const keyPriceResult = await contract.get('get_key_price', []);
-            setKeyPrice(Number(fromNano(keyPriceResult.stack.readBigNumber())) + 0.38);
+            setKeyPrice(Number(fromNano(keyPriceResult.stack.readNumber())) + 0.38);
           } catch (error) {
             setKeyPrice(0.38)
             console.error('Error fetching key price:', error);
@@ -91,7 +91,7 @@ const App = () => {
 
           try {
             const totalSupplyResult = await contract.get('get_total_supply', []);
-            setTotalSupply(Number(totalSupplyResult.stack.readBigNumber()));
+            setTotalSupply(Number(totalSupplyResult.stack.readNumber()));
           } catch (error) {
             console.error('Error fetching total supply:', error);
           }
