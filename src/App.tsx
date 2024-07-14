@@ -15,6 +15,8 @@ const DIVIDEND_PERCENTAGE = 5; // 5% of each purchase goes to key holders as div
 const App = () => {
   const [potSize, setPotSize] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [lastPlayer, setLastPlayer
+  ] = useState('');
   const [keyPrice, setKeyPrice] = useState(0.05);
   const [totalSupply, setTotalSupply] = useState(0);
   const wallet = useTonWallet();
@@ -45,23 +47,26 @@ const App = () => {
     if (!client || !wallet) return;
     try {
       const contract = client.provider(Address.parse(contractAddress));
-  
       const potSizeResult = await contract.get('get_pot_size', []);
       const potSize = potSizeResult.stack.readBigNumber();
   
-      const endTimeResult = await contract.get('get_time_left', []);
-      const endTime = endTimeResult.stack.readNumber();
+      const timeLeftResult = await contract.get('get_time_left', []);
+      const timeLeft = timeLeftResult.stack.readNumber();
   
       const totalKeysResult = await contract.get('get_total_supply', []);
       const totalKeys = totalKeysResult.stack.readNumber();
   
-      const lastPriceResult = await contract.get('get_key_price', []);
-      const lastPrice = lastPriceResult.stack.readBigNumber();
-  
+      const keyPriceResult = await contract.get('get_key_price', []);
+      const keyPrice = keyPriceResult.stack.readBigNumber();
+      
       setPotSize(Number(fromNano(potSize)));
-      setTimeLeft(Math.max(0, Number(endTime) - Math.floor(Date.now() / 1000)));
+      setTimeLeft(timeLeft);
+      setTotalSupply(totalKeys);
+        setKeyPrice(Number(fromNano(keyPrice)));
       setTotalSupply(Number(totalKeys));
-      setKeyPrice(Number(fromNano(lastPrice)) + 0.05);
+      const lastBuyerResult = await contract.get('get_last_buyer', []);
+      const lastBuyer = lastBuyerResult.stack.readAddress();
+      setLastPlayer(lastBuyer.toString());
     } catch (error) {
       console.error('Error fetching game state:', error);
       WebApp.showAlert('Failed to fetch game state. Please try again later.');
@@ -87,7 +92,7 @@ const App = () => {
             address: contractAddress,
             amount: toNano(keyPrice).toString(),
             payload: beginCell()
-              .storeUint(3, 32) // op code for buy_keys
+              .storeUint(1, 32) // op code for buy_keys
               .storeUint(0, 64) // query_id
               .endCell()
               .toBoc()
@@ -170,7 +175,7 @@ const App = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const isWinner = true;
+  const isWinner = true && lastPlayer === wallet?.account.address;
   const canClaimWin = timeLeft === 0 && isWinner;
 
   return (
@@ -188,6 +193,7 @@ const App = () => {
             <h2>Time Left: {formatTime(timeLeft)}</h2>
             <h3>Key Price: {keyPrice.toFixed(3)} TON</h3>
             <h3>Total Keys: {totalSupply}</h3>
+            <h3>Last Buyer: {lastPlayer}</h3>
           </div>
           <div className="actions">
             <button className="buy-keys" onClick={buyKeys}>Buy Keys for {keyPrice.toFixed(3)} TON</button>
