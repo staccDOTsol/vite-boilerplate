@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useTonWallet, useTonConnectUI, TonConnectButton } from '@tonconnect/ui-react';
-import { MemeTon } from '../wrappers/MemeTon';
-
+import { useTonWallet, useTonConnectUI } from '@tonconnect/ui-react';
+import { TonConnectButton } from '@tonconnect/ui-react';
 import './App.css';
 import { beginCell } from '@ton/core';
 import { TonClient, Address, toNano, fromNano } from '@ton/ton'
@@ -16,7 +15,8 @@ const DIVIDEND_PERCENTAGE = 5; // 5% of each purchase goes to key holders as div
 const App = () => {
   const [potSize, setPotSize] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
-  const [keyPrice, setKeyPrice] = useState(0.222);
+  const [keyPrice, setKeyPrice] = useState(1.39);
+  const [lastBuyer, setLastBuyer] = useState('');
   const [totalSupply, setTotalSupply] = useState(0);
   const wallet = useTonWallet();
   const [tonConnectUI] = useTonConnectUI();
@@ -42,30 +42,31 @@ const App = () => {
     initTonClient();
   }, []);
 
-  useEffect(() => {
+  useEffect(() => {const fetchGameData = async () => {
     if (!client || !wallet) return;
-      const fetchGameData = async () => {
-        try {
-      const contract = client.open(MemeTon.createFromAddress(Address.parse(contractAddress)));
+    try {
+      const contract = client.provider(Address.parse(contractAddress));
   
-      const potSizeResult = await contract.getPotSize();
-      const potSize = potSizeResult;
+      const potSizeResult = await contract.get('get_pot_size', []);
+      const potSize = potSizeResult.stack.readBigNumber();
+  
+      const lastBuyerResult = await contract.get('get_last_buyer', []);
+      const lastBuyer = lastBuyerResult.stack.readAddress();
+  
+      const endTimeResult = await contract.get('get_time_left', []);
+      const endTime = endTimeResult.stack.readNumber();
+  
+      const totalKeysResult = await contract.get('get_total_supply', []);
+      const totalKeys = totalKeysResult.stack.readNumber();
+  
+      const lastPriceResult = await contract.get('get_key_price', []);
+      const lastPrice = lastPriceResult.stack.readBigNumber();
   
       setPotSize(Number(fromNano(potSize)));
-
-      const endTimeResult = await contract.getTimeLeft();
-      const endTime = endTimeResult;
+      setLastBuyer(lastBuyer.toString());
       setTimeLeft(Math.max(0, Number(endTime) - Math.floor(Date.now() / 1000)));
-  
-      const totalKeysResult = await contract.getTotalSupply();
-      const totalKeys = totalKeysResult;
-  
       setTotalSupply(Number(totalKeys));
-      const lastPriceResult = await contract.getKeyPrice();
-      const lastPrice = lastPriceResult;
-  
-      setKeyPrice(Number(fromNano(lastPrice)) + 0.222);
-  
+      setKeyPrice(Number(fromNano(lastPrice)) + 1.39);
     } catch (error) {
       console.error('Error fetching game state:', error);
       WebApp.showAlert('Failed to fetch game state. Please try again later.');
@@ -91,7 +92,7 @@ const App = () => {
             address: contractAddress,
             amount: toNano(keyPrice).toString(),
             payload: beginCell()
-              .storeUint(1, 32) // op code for buy_keys
+              .storeUint(3, 32) // op code for buy_keys
               .storeUint(0, 64) // query_id
               .endCell()
               .toBoc()
@@ -121,7 +122,7 @@ const App = () => {
         messages: [
           {
             address: contractAddress,
-            amount: toNano('0.222').toString(), // Small amount for gas
+            amount: toNano('1.39').toString(), // Small amount for gas
             payload: beginCell()
               .storeUint(0x595f07bc, 32) // op code for burn
               .storeUint(0, 64) // query_id
@@ -150,7 +151,7 @@ const App = () => {
         messages: [
           {
             address: contractAddress,
-            amount: toNano('0.222').toString(), // Small amount for gas
+            amount: toNano('1.39').toString(), // Small amount for gas
             payload: beginCell()
               .storeUint(2, 32) // op code for claim_win
               .storeUint(0, 64) // query_id
@@ -174,7 +175,7 @@ const App = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const isWinner = true;
+  const isWinner = wallet && lastBuyer === wallet.account.address;
   const canClaimWin = timeLeft === 0 && isWinner;
 
   return (
@@ -192,6 +193,7 @@ const App = () => {
             <h2>Time Left: {formatTime(timeLeft)}</h2>
             <h3>Key Price: {keyPrice.toFixed(3)} TON</h3>
             <h3>Total Keys: {totalSupply}</h3>
+            <h4>Last Buyer: {lastBuyer === 'No buyer yet' || lastBuyer === 'Error fetching last buyer' ? lastBuyer : `${lastBuyer.slice(0, 6)}...${lastBuyer.slice(-4)}`}</h4>
           </div>
           <div className="actions">
             <button className="buy-keys" onClick={buyKeys}>Buy Keys for {keyPrice.toFixed(3)} TON</button>
