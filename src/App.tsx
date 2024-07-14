@@ -146,7 +146,7 @@ const App = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const isWinner = true && lastPlayer === wallet?.account.address;
+  const isWinner = true;
   const canClaimWin = timeLeft === 0 && isWinner;
 
   return (
