@@ -55,6 +55,7 @@ const App = () => {
       const endTime = potSizeResult[2];
       const totalKeys = potSizeResult[3];
       const lastPrice = potSizeResult[4];
+      console.log(potSize, lastBuyer, endTime, totalKeys, lastPrice)
       setPotSize(Number(fromNano(potSize)));
       setLastBuyer(lastBuyer ? lastBuyer.toString() : 'No buyer yet');
       setTimeLeft(Math.max(0, Number(endTime) - Math.floor(Date.now() / 1000)));
