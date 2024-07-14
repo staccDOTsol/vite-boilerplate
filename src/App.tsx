@@ -48,7 +48,7 @@ const App = () => {
       const contract = client.provider(Address.parse(contractAddress));
   
       const potSizeResult = await contract.get('get_pot_size', []);
-      const potSize = potSizeResult.stack.readBigNumber();
+      const potSize = potSizeResult.stack.readNumber();
   
       const lastBuyerResult = await contract.get('get_last_buyer', []);
       const lastBuyer = lastBuyerResult.stack.readAddress();
