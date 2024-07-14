@@ -47,57 +47,22 @@ const App = () => {
       if (!client || !wallet) return;
       try {
         const contract = client.provider(Address.parse(contractAddress));
-          try {
-            const potSizeResult = await contract.get('get_pot_size', []);
-            setPotSize(Number(fromNano(potSizeResult.stack.readNumber())));
-          } catch (error) {
-            console.error('Error fetching pot size:', error);
-          }
-
-          try {
-            const timeLeftResult = await contract.get('get_time_left', []);
-            // @ts-ignore
-            if (timeLeftResult.stack.items.length > 0) {
-              setTimeLeft(Number(timeLeftResult.stack.readNumber()));
-            } else {
-              console.error('Error fetching time left: Empty stack');
-            }
-          } catch (error) {
-            console.error('Error fetching time left:', error);
-          }
-
-          try {
-            const keyPriceResult = await contract.get('get_key_price', []);
-            setKeyPrice(Number(fromNano(keyPriceResult.stack.readNumber())) + 0.38);
-          } catch (error) {
-            setKeyPrice(0.38)
-            console.error('Error fetching key price:', error);
-          }
-
-          try {
-            const lastBuyerResult = await contract.get('get_last_buyer', []);
-            // @ts-ignore
-            if (lastBuyerResult.stack.items.length > 0) {
-              const lastBuyerAddress = lastBuyerResult.stack.readAddress();
-              setLastBuyer(lastBuyerAddress ? lastBuyerAddress.toString() : 'No buyer yet');
-            } else {
-              console.error('Error fetching last buyer: Empty stack');
-              setLastBuyer('No buyer yet');
-            }
-          } catch (error) {
-            console.error('Error fetching last buyer:', error);
-            setLastBuyer('Error fetching last buyer');
-          }
-
-          try {
-            const totalSupplyResult = await contract.get('get_total_supply', []);
-            setTotalSupply(Number(totalSupplyResult.stack.readNumber()));
-          } catch (error) {
-            console.error('Error fetching total supply:', error);
-          }
-     
+        const gameStateResult = await contract.get('get_game_state', []);
+        const tuple = gameStateResult.stack.readTuple();
+        const potSize = tuple.readBigNumber();
+        const lastBuyer = tuple.readAddress();
+        const endTime = tuple.readNumber();
+        const totalKeys = tuple.readNumber();
+        const lastPrice = tuple.readBigNumber();
+        
+        setPotSize(Number(fromNano(potSize)));
+        setLastBuyer(lastBuyer.toString());
+        setTimeLeft(Math.max(0, Number(endTime) - Math.floor(Date.now() / 1000)));
+        setTotalSupply(Number(totalKeys));
+        setKeyPrice(Number(fromNano(lastPrice)) + 0.38);
       } catch (error) {
-        console.error('Error fetching game data:', error);
+        console.error('Error fetching game state:', error);
+        WebApp.showAlert('Failed to fetch game state. Please try again later.');
       }
       setTimeout(fetchGameData, 5000); // Update every 5 seconds
     };
