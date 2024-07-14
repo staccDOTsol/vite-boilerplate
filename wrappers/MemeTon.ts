@@ -87,7 +87,8 @@ export class MemeTon implements Contract {
     }
     async getLastBuyer(provider: ContractProvider) {
         const result = await provider.get('get_last_buyer', []);
-        return result.stack.readAddressOpt();
+        console.log(result.stack)
+        return result.stack.readAddress();
     }
 
     async getTimeLeft(provider: ContractProvider) {
