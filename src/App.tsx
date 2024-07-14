@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTonWallet, useTonConnectUI, TonConnectButton } from '@tonconnect/ui-react';
-import { MemeTon } from '../../wrappers/MemeTon';
+import { MemeTon } from '../wrappers/MemeTon';
 
 import './App.css';
 import { beginCell } from '@ton/core';
