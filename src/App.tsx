@@ -46,7 +46,6 @@ const App = () => {
   useEffect(() => {const fetchGameData = async () => {
     if (!client || !wallet) return;
       const fetchGameData = async () => {
-        try {
       const contract = client.open(MemeTon.createFromAddress(Address.parse(contractAddress)));
   
       const potSizeResult = await contract.getGameState()
@@ -61,11 +60,8 @@ const App = () => {
       setTimeLeft(Math.max(0, Number(endTime) - Math.floor(Date.now() / 1000)));
       setTotalSupply(Number(totalKeys));
       setKeyPrice(Number(fromNano(lastPrice)) + 0.222);
-    } catch (error) {
-      console.error('Error fetching game state:', error);
-      WebApp.showAlert('Failed to fetch game state. Please try again later.');
+   
     }
-  }
     setTimeout(fetchGameData, 5000); // Update every 5 seconds
   };
     fetchGameData();
