@@ -62,7 +62,7 @@ const App = () => {
       setPotSize(Number(fromNano(potSize)));
       setTimeLeft(timeLeft);
       setTotalSupply(totalKeys);
-        setKeyPrice(Number(fromNano(keyPrice)));
+        setKeyPrice(Number(fromNano(keyPrice))+0.1);
       setTotalSupply(Number(totalKeys));
       const lastBuyerResult = await contract.get('get_last_buyer', []);
       const lastBuyer = lastBuyerResult.stack.readAddress();
@@ -108,35 +108,6 @@ const App = () => {
       } else {
         WebApp.showAlert(`Transaction failed: ${error.message || 'Unknown error'}`);
       }
-    }
-  };
-
-  const burnKeys = async (keysToBurn: number) => {
-    if (!wallet) {
-      WebApp.showAlert('Please connect your wallet first.');
-      return;
-    }
-    try {
-      await tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() ) * 2,
-        messages: [
-          {
-            address: contractAddress,
-            amount: toNano('0.05').toString(), // Small amount for gas
-            payload: beginCell()
-              .storeUint(0x595f07bc, 32) // op code for burn
-              .storeUint(0, 64) // query_id
-              .storeCoins(keysToBurn)
-              .endCell()
-              .toBoc()
-              .toString('base64'),
-          },
-        ],
-      });
-      WebApp.showAlert('Key burn initiated. Please wait for confirmation.');
-    } catch (error: any) {
-      console.error('Failed to burn keys:', error);
-      WebApp.showAlert(error.toString());
     }
   };
 
